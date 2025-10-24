@@ -25,6 +25,8 @@ public class Main extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
 
     int[][] map;
+    public final int mapX = 20;
+    public final int mapY = 11;
 
     Random random;
 
@@ -32,9 +34,11 @@ public class Main extends ApplicationAdapter {
     public void create() {
         // libgdx init
         camera = new  OrthographicCamera();
-        viewport =  new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
+        viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
+
+        // import assets
 
         //
         random = new Random();
@@ -42,8 +46,6 @@ public class Main extends ApplicationAdapter {
 
         //generate map
         // dimensions
-        int mapX = 10;
-        int mapY = 10;
         map = new int[mapX][mapY];
         for (int i = 0; i < mapX; i++) {
             for (int j = 0; j < mapY; j++) {
@@ -65,9 +67,9 @@ public class Main extends ApplicationAdapter {
             }
             lastNode = node;
         }
-        for (int i = 0; i < mapY; i++) {
-            for (int j = 0; j < mapX; j++) {
-                System.out.print(map[j][i]);
+        for (int j = 0; j < mapY; j++) {
+            for (int i = 0; i < mapX; i++) {
+                System.out.print(map[i][j]);
                 System.out.print(",");
             }
             System.out.print("\n");
@@ -93,10 +95,10 @@ public class Main extends ApplicationAdapter {
     public void draw() {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(1.5f, 0.5f, 0.5f, 1f);
-        for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[i].length; j++) {
+        for (int i = 0; i < mapX; i++) {
+            for (int j = 0; j < mapY; j++) {
                 if (map[i][j] == 0) {
-                    shapeRenderer.rect(j*32f, (map.length-1)*32f-i*32f, 32f, 32f);
+                    shapeRenderer.rect(i*32f, (mapY-1)*32f-j*32f, 32f, 32f);
                 }
             }
         }
