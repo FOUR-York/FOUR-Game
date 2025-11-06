@@ -21,6 +21,13 @@ public class Main extends ApplicationAdapter {
     private Texture drawerTexture;
     private Texture playerTexture;
 
+    //Map key:
+    //1 = basic wall
+    //0 = empty
+    //-1 = player spawn
+
+    //>0 = solid
+    //<=0 = no collision
     public static final int[][] map = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -36,11 +43,11 @@ public class Main extends ApplicationAdapter {
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
     };
     public static final int mapX = 20, mapY = 20, mapS = 32;
@@ -57,7 +64,8 @@ public class Main extends ApplicationAdapter {
         initialiseShapeDrawer();
 
         playerTexture = new Texture(Gdx.files.internal("textures/player.png"));
-        player = new Player(100f, 100f, 100f, 100, playerTexture);
+        float playerSpawn[] = findPlayerSpawn();
+        player = new Player(playerSpawn[0], playerSpawn[1], 100f, 100, playerTexture);
     }
 
     @Override
@@ -102,10 +110,11 @@ public class Main extends ApplicationAdapter {
         int x, y, xo, yo;
         for(y = 0; y < mapY; y++) {
             for(x = 0; x < mapX; x++) {
-                if(map[y][x] > 0) { shapeDrawer.setColor(1f,1f,1f,1f);}
+                if(map[y][x] == 1) { shapeDrawer.setColor(1f,1f,1f,1f);}
                 else { shapeDrawer.setColor(0f,0f,0f,0f);}
+
                 xo = x * mapS;
-                yo = (y+1) * mapS;
+                yo = (mapY*mapS)-((y+1) * mapS);
                 shapeDrawer.filledRectangle(xo,yo,mapS-1,mapS-1);
             }
         }
@@ -124,5 +133,17 @@ public class Main extends ApplicationAdapter {
         drawerPixmap.dispose();
         TextureRegion drawerRegion = new TextureRegion(drawerTexture, 0, 0, 1, 1);
         shapeDrawer = new ShapeDrawer(batch, drawerRegion);
+    }
+
+    private float[] findPlayerSpawn() {
+        int x, y;
+        for (y = 0; y < mapY; y++) {
+            for (x = 0; x < mapX; x++) {
+                if (map[y][x] == -1) {
+                    return new float[] {(x*mapS)+((float)mapS/2), (mapY*mapS)-(((y+1)*mapS)+((float)mapS/2))};
+                }
+            }
+        }
+        throw new NoPlayerSpawnException("No player spawn found");
     }
 }

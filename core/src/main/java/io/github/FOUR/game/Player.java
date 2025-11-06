@@ -13,7 +13,6 @@ public class Player {
     public int hp;
     public float x, y, speed;
 
-    private Texture texture;
     private Sprite sprite;
     private Camera camera;
 
@@ -23,7 +22,6 @@ public class Player {
 
     public Player(float x, float y, float speed, int hp, Texture texture) {
         //Assign texture and sprite
-        this.texture = texture;
         sprite = new Sprite(texture, 0, 0, 32, 32);
         this.camera = camera;
 
@@ -54,30 +52,31 @@ public class Player {
     public void move() {
         float delta = Gdx.graphics.getDeltaTime();
         stateTime += delta;
+        int mapHeight = (Main.mapS * Main.mapY);
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            if (Main.map[(int) (y+16)/32][(int) x/32] <= 0) {y += speed * delta;}
+            if (Main.map[(int) ((mapHeight-(y+16))/32)-1][(int) x/32] <= 0) {y += speed * delta;}
 
             TextureRegion frame = walkUp.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
             sprite.flip(false, false);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            if (Main.map[(int) (y-16)/32][(int) x/32] <= 0) {y -= speed * delta;}
+            if (Main.map[(int) ((mapHeight-(y-16))/32)-1][(int) x/32] <= 0) {y -= speed * delta;}
 
             TextureRegion frame = walkDown.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
             sprite.flip(false, false);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            if (Main.map[(int) y/32][(int) (x+16)/32] <= 0) {x += speed * delta;}
+            if (Main.map[(int) ((mapHeight-y)/32)-1][(int) (x+16)/32] <= 0) {x += speed * delta;}
 
             TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
             sprite.flip(false, false);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            if (Main.map[(int) y/32][(int) (x-16)/32] <= 0) {x -= speed * delta;}
+            if (Main.map[(int) ((mapHeight-y)/32)-1][(int) (x-16)/32] <= 0) {x -= speed * delta;}
 
             TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
