@@ -1,18 +1,89 @@
 package io.github.FOUR.game;
 
-public class Player extends Entity {
-    @Override
-    public void kill() {
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+public class Player {
+    public int hp;
+    public float x, y, speed;
+
+    private Texture texture;
+    private Sprite sprite;
+    private Camera camera;
+
+    private float stateTime = 0f;
+    Animation<TextureRegion> walkUp, walkSide, walkDown, swing, fall;
+    TextureRegion[] walkUpFrames, walkSideFrames, walkDownFrames, swingFrames, fallFrames;
+
+    public Player(float x, float y, float speed, int hp, Texture texture) {
+        //Assign texture and sprite
+        this.texture = texture;
+        sprite = new Sprite(texture, 0, 0, 32, 32);
+        this.camera = camera;
+
+        //Initialise position
+        this.x = x;
+        this.y = y;
+        sprite.setPosition(x, y);
+
+        //Speed and hp
+        this.speed = speed;
+        this.hp = hp;
+
+        //Create texture region arrays for anims
+        walkDownFrames = new TextureRegion[] {new TextureRegion(texture, 0, 0, 32, 32), new TextureRegion(texture, 32, 0, 32, 32),};
+        walkSideFrames = new TextureRegion[] {new TextureRegion(texture, 64, 0, 32, 32), new TextureRegion(texture, 96, 0, 32, 32),};
+        walkUpFrames = new TextureRegion[] {new TextureRegion(texture, 128, 0, 32, 32), new TextureRegion(texture, 160, 0, 32, 32),};
+
+        //Create anims with the arrays
+        walkDown = new Animation<TextureRegion>(0.1f, walkDownFrames);
+        walkSide = new Animation<TextureRegion>(0.1f, walkSideFrames);
+        walkUp = new Animation<TextureRegion>(0.1f, walkUpFrames);
     }
 
-    @Override
-    public void hit() {
-
+    public void draw(SpriteBatch batch) {
+        sprite.draw(batch);
     }
 
-    @Override
-    public void step(float delta) {
+    public void move() {
+        float delta = Gdx.graphics.getDeltaTime();
+        stateTime += delta;
 
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+            if (Main.map[(int) (y+16)/32][(int) x/32] <= 0) {y += speed * delta;}
+
+            TextureRegion frame = walkUp.getKeyFrame(stateTime, true);
+            sprite.setRegion(frame);
+            sprite.flip(false, false);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            if (Main.map[(int) (y-16)/32][(int) x/32] <= 0) {y -= speed * delta;}
+
+            TextureRegion frame = walkDown.getKeyFrame(stateTime, true);
+            sprite.setRegion(frame);
+            sprite.flip(false, false);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            if (Main.map[(int) y/32][(int) (x+16)/32] <= 0) {x += speed * delta;}
+
+            TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
+            sprite.setRegion(frame);
+            sprite.flip(false, false);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            if (Main.map[(int) y/32][(int) (x-16)/32] <= 0) {x -= speed * delta;}
+
+            TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
+            sprite.setRegion(frame);
+            sprite.flip(true, false);
+        }
+
+        sprite.setPosition(x-16, y+16);
     }
 }

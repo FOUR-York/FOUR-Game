@@ -2,33 +2,50 @@ package io.github.FOUR.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-
-import java.awt.*;
-import java.util.Random;
+import space.earlygrey.shapedrawer.ShapeDrawer;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
-    public static int WORLD_WIDTH = 640, WORLD_HEIGHT = 360;
+    public static final int WORLD_WIDTH = 640, WORLD_HEIGHT = 360;
 
     private OrthographicCamera camera;
     private FitViewport viewport;
     private SpriteBatch batch;
 
-    private ShapeRenderer shapeRenderer;
+    private ShapeDrawer shapeDrawer;
 
-    int[][] map;
-    public final int mapX = 20;
-    public final int mapY = 11;
+    private Texture drawerTexture;
+    private Texture playerTexture;
 
-    Random random;
+    public static final int[][] map = {
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    };
+    public static final int mapX = 20, mapY = 20, mapS = 32;
+
+    private Player player;
 
     @Override
     public void create() {
@@ -36,83 +53,76 @@ public class Main extends ApplicationAdapter {
         camera = new  OrthographicCamera();
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         batch = new SpriteBatch();
-        shapeRenderer = new ShapeRenderer();
 
-        // import assets
+        initialiseShapeDrawer();
 
-        //
-        random = new Random();
-        random.setSeed(System.currentTimeMillis());
-
-        //generate map
-        // dimensions
-        map = new int[mapX][mapY];
-        for (int i = 0; i < mapX; i++) {
-            for (int j = 0; j < mapY; j++) {
-                map[i][j] = 1;
-            }
-        }
-        // generate nodes
-        int nodes = 10;
-        Vector2 lastNode = new Vector2(random.nextInt(0, mapX), random.nextInt(0, mapY));
-        for (int i = 1; i < nodes; i++) {
-            Vector2 node = new Vector2(random.nextInt(0, mapX), random.nextInt(0, mapY));
-            // x dir
-            for  (int j = 0; j < (int)Math.abs(lastNode.y-node.y)+1; j++) {
-                map[(int)lastNode.x][(int)lastNode.y+j*(lastNode.y < node.y? 1 : -1)] = 0;
-            }
-            // y dir
-            for (int j = 0; j < (int)Math.abs(lastNode.x-node.x)+1; j++) {
-                map[(int)node.x+j*(lastNode.x < node.x? -1 : 1)][(int)node.y] = 0;
-            }
-            lastNode = node;
-        }
-        for (int j = 0; j < mapY; j++) {
-            for (int i = 0; i < mapX; i++) {
-                System.out.print(map[i][j]);
-                System.out.print(",");
-            }
-            System.out.print("\n");
-        }
+        playerTexture = new Texture(Gdx.files.internal("textures/player.png"));
+        player = new Player(100f, 100f, 100f, 100, playerTexture);
     }
 
     @Override
     public void render() {
-        ScreenUtils.clear(0f, 0f, 0f, 1f);
         input();
-        step();
+        logic();
         draw();
     }
 
     public void input() {
-
+        player.move();
     }
 
-    public void step() {
-
+    public void logic() {
+        updateCamera();
     }
 
     public void draw() {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(1.5f, 0.5f, 0.5f, 1f);
-        for (int i = 0; i < mapX; i++) {
-            for (int j = 0; j < mapY; j++) {
-                if (map[i][j] == 0) {
-                    shapeRenderer.rect(i*32f, (mapY-1)*32f-j*32f, 32f, 32f);
-                }
-            }
-        }
-        shapeRenderer.end();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        batch.begin();
+        drawMap2D();
+        player.draw(batch);
+        batch.setProjectionMatrix(camera.combined);
+        batch.end();
     }
 
 
     @Override
     public void dispose() {
         batch.dispose();
+        playerTexture.dispose();
+        drawerTexture.dispose();
     }
 
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
+    }
+
+    private void drawMap2D() {
+        int x, y, xo, yo;
+        for(y = 0; y < mapY; y++) {
+            for(x = 0; x < mapX; x++) {
+                if(map[y][x] > 0) { shapeDrawer.setColor(1f,1f,1f,1f);}
+                else { shapeDrawer.setColor(0f,0f,0f,0f);}
+                xo = x * mapS;
+                yo = (y+1) * mapS;
+                shapeDrawer.filledRectangle(xo,yo,mapS-1,mapS-1);
+            }
+        }
+    }
+
+    private void updateCamera() {
+        camera.position.set(player.x, player.y + 32, 0);
+        camera.update();
+    }
+
+    private void initialiseShapeDrawer() {
+        Pixmap drawerPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        drawerPixmap.setColor(Color.WHITE);
+        drawerPixmap.drawPixel(0, 0);
+        drawerTexture = new Texture(drawerPixmap); //remember to dispose of later
+        drawerPixmap.dispose();
+        TextureRegion drawerRegion = new TextureRegion(drawerTexture, 0, 0, 1, 1);
+        shapeDrawer = new ShapeDrawer(batch, drawerRegion);
     }
 }
