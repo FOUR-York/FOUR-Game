@@ -28,7 +28,7 @@ public class Main extends ApplicationAdapter {
 
     //>0 = solid
     //<=0 = no collision
-    public static final int[][] map = {
+    public static final int[][] mapW = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -64,8 +64,8 @@ public class Main extends ApplicationAdapter {
         initialiseShapeDrawer();
 
         playerTexture = new Texture(Gdx.files.internal("textures/player.png"));
-        float playerSpawn[] = findPlayerSpawn();
-        player = new Player(playerSpawn[0], playerSpawn[1], 100f, 100, playerTexture);
+        float[] playerSpawn = findPlayerSpawn();
+        player = new Player(playerSpawn[0], playerSpawn[1], 100f, 100, 10, playerTexture);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class Main extends ApplicationAdapter {
         int x, y, xo, yo;
         for(y = 0; y < mapY; y++) {
             for(x = 0; x < mapX; x++) {
-                if(map[y][x] == 1) { shapeDrawer.setColor(1f,1f,1f,1f);}
+                if(mapW[y][x] == 1) { shapeDrawer.setColor(1f,1f,1f,1f);}
                 else { shapeDrawer.setColor(0f,0f,0f,0f);}
 
                 xo = x * mapS;
@@ -139,7 +139,7 @@ public class Main extends ApplicationAdapter {
         int x, y;
         for (y = 0; y < mapY; y++) {
             for (x = 0; x < mapX; x++) {
-                if (map[y][x] == -1) {
+                if (mapW[y][x] == -1) {
                     return new float[] {(x*mapS)+((float)mapS/2), (mapY*mapS)-(((y+1)*mapS)+((float)mapS/2))};
                 }
             }

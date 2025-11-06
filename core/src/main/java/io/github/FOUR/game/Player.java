@@ -2,11 +2,8 @@ package io.github.FOUR.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Player extends LivingThing {
@@ -14,8 +11,8 @@ public class Player extends LivingThing {
     Animation<TextureRegion> walkUp, walkSide, walkDown, swing, fall;
     TextureRegion[] walkUpFrames, walkSideFrames, walkDownFrames, swingFrames, fallFrames;
 
-    public Player(float x, float y, float speed, int hp, Texture texture) {
-        super(x, y, speed, hp, texture);
+    public Player(float x, float y, float speed, int hp, int attack, Texture texture) {
+        super(x, y, speed, hp, attack, texture);
 
         //Create texture region arrays for anims
         walkDownFrames = new TextureRegion[] {new TextureRegion(texture, 0, 0, 32, 32), new TextureRegion(texture, 32, 0, 32, 32),};
@@ -34,28 +31,28 @@ public class Player extends LivingThing {
         int mapHeight = (Main.mapS * Main.mapY);
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            if (Main.map[(int) ((mapHeight-(y+16))/32)-1][(int) x/32] <= 0) {y += speed * delta;}
+            if (Main.mapW[(int) ((mapHeight-(y+16))/32)-1][(int) x/32] <= 0) {y += speed * delta;}
 
             TextureRegion frame = walkUp.getKeyFrame(stateTime, true);
             super.
             sprite.flip(false, false);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            if (Main.map[(int) ((mapHeight-(y-16))/32)-1][(int) x/32] <= 0) {y -= speed * delta;}
+            if (Main.mapW[(int) ((mapHeight-(y-16))/32)-1][(int) x/32] <= 0) {y -= speed * delta;}
 
             TextureRegion frame = walkDown.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
             sprite.flip(false, false);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            if (Main.map[(int) ((mapHeight-y)/32)-1][(int) (x+16)/32] <= 0) {x += speed * delta;}
+            if (Main.mapW[(int) ((mapHeight-y)/32)-1][(int) (x+16)/32] <= 0) {x += speed * delta;}
 
             TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
             sprite.flip(false, false);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            if (Main.map[(int) ((mapHeight-y)/32)-1][(int) (x-16)/32] <= 0) {x -= speed * delta;}
+            if (Main.mapW[(int) ((mapHeight-y)/32)-1][(int) (x-16)/32] <= 0) {x -= speed * delta;}
 
             TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
