@@ -9,30 +9,13 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class Player {
-    public int hp;
-    public float x, y, speed;
-
-    private Sprite sprite;
-    private Camera camera;
-
+public class Player extends LivingThing {
     private float stateTime = 0f;
     Animation<TextureRegion> walkUp, walkSide, walkDown, swing, fall;
     TextureRegion[] walkUpFrames, walkSideFrames, walkDownFrames, swingFrames, fallFrames;
 
     public Player(float x, float y, float speed, int hp, Texture texture) {
-        //Assign texture and sprite
-        sprite = new Sprite(texture, 0, 0, 32, 32);
-        this.camera = camera;
-
-        //Initialise position
-        this.x = x;
-        this.y = y;
-        sprite.setPosition(x, y);
-
-        //Speed and hp
-        this.speed = speed;
-        this.hp = hp;
+        super(x, y, speed, hp, texture);
 
         //Create texture region arrays for anims
         walkDownFrames = new TextureRegion[] {new TextureRegion(texture, 0, 0, 32, 32), new TextureRegion(texture, 32, 0, 32, 32),};
@@ -45,10 +28,6 @@ public class Player {
         walkUp = new Animation<TextureRegion>(0.1f, walkUpFrames);
     }
 
-    public void draw(SpriteBatch batch) {
-        sprite.draw(batch);
-    }
-
     public void move() {
         float delta = Gdx.graphics.getDeltaTime();
         stateTime += delta;
@@ -58,7 +37,7 @@ public class Player {
             if (Main.map[(int) ((mapHeight-(y+16))/32)-1][(int) x/32] <= 0) {y += speed * delta;}
 
             TextureRegion frame = walkUp.getKeyFrame(stateTime, true);
-            sprite.setRegion(frame);
+            super.
             sprite.flip(false, false);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
@@ -85,4 +64,6 @@ public class Player {
 
         sprite.setPosition(x-16, y+16);
     }
+
+    public void kill() {}
 }
