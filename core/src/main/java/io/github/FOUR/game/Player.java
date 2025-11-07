@@ -7,10 +7,11 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Player extends LivingThing {
-    private float stateTime = 0f;
+    private float stateTime = 0f, swingTime = 0f;
     private int mapHeight = (Main.mapS * Main.mapY);
-    Animation<TextureRegion> walkUp, walkSide, walkDown, swing, fall;
-    TextureRegion[] walkUpFrames, walkSideFrames, walkDownFrames, swingFrames, fallFrames;
+    private boolean swinging = false, down = true, up = false, left = false, right = false;
+    Animation<TextureRegion> walkUp, walkSide, walkDown, fall;
+    TextureRegion[] walkUpFrames, walkSideFrames, walkDownFrames, fallFrames;
 
     public Player(float x, float y, float speed, int hp, int attack, Texture texture) {
         super(x, y, speed, hp, attack, texture);
@@ -20,46 +21,127 @@ public class Player extends LivingThing {
         walkSideFrames = new TextureRegion[] {new TextureRegion(texture, 64, 0, 32, 32), new TextureRegion(texture, 96, 0, 32, 32),};
         walkUpFrames = new TextureRegion[] {new TextureRegion(texture, 128, 0, 32, 32), new TextureRegion(texture, 160, 0, 32, 32),};
 
+        fallFrames = new TextureRegion[] {new TextureRegion(texture, 0, 64, 32, 32), new TextureRegion(texture, 32, 64, 32, 32),};
+
         //Create anims with the arrays
         walkDown = new Animation<TextureRegion>(0.1f, walkDownFrames);
         walkSide = new Animation<TextureRegion>(0.1f, walkSideFrames);
         walkUp = new Animation<TextureRegion>(0.1f, walkUpFrames);
+
+        fall = new Animation<TextureRegion>(0.1f, fallFrames);
     }
 
     public void move() {
         float delta = Gdx.graphics.getDeltaTime();
         stateTime += delta;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             if (Main.mapW[(int) ((mapHeight-(y+16))/32)-1][(int) x/32] <= 0) {y += speed * delta;}
 
             TextureRegion frame = walkUp.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
             sprite.flip(false, false);
+
+            up = true;
+            down = false;
+            right = false;
+            left = false;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             if (Main.mapW[(int) ((mapHeight-(y-16))/32)-1][(int) x/32] <= 0) {y -= speed * delta;}
 
             TextureRegion frame = walkDown.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
             sprite.flip(false, false);
+
+            down = true;
+            up = false;
+            right = false;
+            left = false;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             if (Main.mapW[(int) ((mapHeight-y)/32)-1][(int) (x+16)/32] <= 0) {x += speed * delta;}
 
             TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
             sprite.flip(false, false);
+
+            right = true;
+            up = false;
+            left = false;
+            down = false;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             if (Main.mapW[(int) ((mapHeight-y)/32)-1][(int) (x-16)/32] <= 0) {x -= speed * delta;}
 
             TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
             sprite.flip(true, false);
+
+            left = true;
+            up = false;
+            right = false;
+            down = false;
         }
 
         sprite.setPosition(x-16, y+16);
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
+            if (!swinging) {
+                swinging = true;
+                swingTime = 0;
+            }
+        }
+
+        if (swinging) {
+            if (down) {
+                sprite.setRegion(new TextureRegion(texture, 0, 32, 32, 32));
+                sprite.flip(false, false);
+                swingTime += delta;
+                if (swingTime >= 0.5f) {
+                    sprite.setRegion(new TextureRegion(texture, 0, 0, 32, 32));
+                    sprite.flip(false, false);
+                    swinging = false;
+                }
+            }
+            else if (right) {
+                sprite.setRegion(new TextureRegion(texture, 32, 32, 32, 32));
+                sprite.flip(false, false);
+                swingTime += delta;
+                if (swingTime >= 0.5f) {
+                    sprite.setRegion(new TextureRegion(texture, 64, 0, 32, 32));
+                    sprite.flip(false, false);
+                    swinging = false;
+                }
+            }
+            else if (left) {
+                sprite.setRegion(new TextureRegion(texture, 32, 32, 32, 32));
+                sprite.flip(true, false);
+                swingTime += delta;
+                if (swingTime >= 0.5f) {
+                    sprite.setRegion(new TextureRegion(texture, 64, 0, 32, 32));
+                    sprite.flip(true, false);
+                    swinging = false;
+                }
+            }
+            else if (up) {
+                sprite.setRegion(new TextureRegion(texture, 64, 32, 32, 32));
+                sprite.flip(false, false);
+                swingTime += delta;
+                if (swingTime >= 0.5f) {
+                    sprite.setRegion(new TextureRegion(texture, 128, 0, 32, 32));
+                    sprite.flip(false, false);
+                    swinging = false;
+                }
+            }
+        }
+    }
+
+    public void collision() {
+        if (Main.mapW[(int) ((mapHeight-y)/32)-1][(int) x/32] == -2) {
+            //run some code
+            //mapW can be replaced with mapE if needed, and == -2 can be any number <=0
+        }
     }
 
     public void kill() {}
