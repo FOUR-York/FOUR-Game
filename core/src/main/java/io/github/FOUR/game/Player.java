@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Player extends LivingThing {
     private float stateTime = 0f;
+    private int mapHeight = (Main.mapS * Main.mapY);
     Animation<TextureRegion> walkUp, walkSide, walkDown, swing, fall;
     TextureRegion[] walkUpFrames, walkSideFrames, walkDownFrames, swingFrames, fallFrames;
 
@@ -28,7 +29,6 @@ public class Player extends LivingThing {
     public void move() {
         float delta = Gdx.graphics.getDeltaTime();
         stateTime += delta;
-        int mapHeight = (Main.mapS * Main.mapY);
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             if (Main.mapW[(int) ((mapHeight-(y+16))/32)-1][(int) x/32] <= 0) {y += speed * delta;}

@@ -20,6 +20,7 @@ public class Main extends ApplicationAdapter {
 
     private Texture drawerTexture;
     private Texture playerTexture;
+    private Texture enemyTexture;
 
     //Map key:
     //1 = basic wall
@@ -36,10 +37,10 @@ public class Main extends ApplicationAdapter {
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -52,7 +53,9 @@ public class Main extends ApplicationAdapter {
     };
     public static final int mapX = 20, mapY = 20, mapS = 32;
 
-    private Player player;
+    public static Player player;
+
+    public static Enemy[] enemies = new Enemy[32];
 
     @Override
     public void create() {
@@ -66,6 +69,9 @@ public class Main extends ApplicationAdapter {
         playerTexture = new Texture(Gdx.files.internal("textures/player.png"));
         float[] playerSpawn = findPlayerSpawn();
         player = new Player(playerSpawn[0], playerSpawn[1], 100f, 100, 10, playerTexture);
+
+        enemyTexture = new Texture(Gdx.files.internal("textures/enemy.png"));
+        enemies[0] = new Enemy(200, 50, 50, 100, 10, 50, enemyTexture);
     }
 
     @Override
@@ -81,6 +87,11 @@ public class Main extends ApplicationAdapter {
 
     public void logic() {
         updateCamera();
+        for (Enemy enemy : enemies) {
+            if (enemy != null) {
+                enemy.move();
+            }
+        }
     }
 
     public void draw() {
@@ -88,6 +99,11 @@ public class Main extends ApplicationAdapter {
 
         batch.begin();
         drawMap2D();
+        for (Enemy enemy : enemies) {
+            if (enemy != null) {
+                enemy.draw(batch);
+            }
+        }
         player.draw(batch);
         batch.setProjectionMatrix(camera.combined);
         batch.end();
@@ -99,6 +115,7 @@ public class Main extends ApplicationAdapter {
         batch.dispose();
         playerTexture.dispose();
         drawerTexture.dispose();
+        enemyTexture.dispose();
     }
 
     @Override
