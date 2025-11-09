@@ -12,11 +12,11 @@ import space.earlygrey.shapedrawer.ShapeDrawer;
 public class Main extends ApplicationAdapter {
     public static final int WORLD_WIDTH = 640, WORLD_HEIGHT = 360;
 
-    private OrthographicCamera camera;
-    private FitViewport viewport;
-    private SpriteBatch batch;
+    private static OrthographicCamera camera;
+    private static FitViewport viewport;
+    private static SpriteBatch batch;
 
-    private ShapeDrawer shapeDrawer;
+    private static ShapeDrawer shapeDrawer;
 
     private Texture drawerTexture;
     private Texture playerTexture;
@@ -127,6 +127,7 @@ public class Main extends ApplicationAdapter {
             }
         }
         player.draw(batch);
+        player.drawFOV(shapeDrawer, 360);
         batch.setProjectionMatrix(camera.combined);
         batch.end();
     }
@@ -160,7 +161,7 @@ public class Main extends ApplicationAdapter {
     }
 
     private void updateCamera() {
-        camera.position.set(player.x, player.y + 32, 0);
+        camera.position.set(player.x, player.y, 0);
         camera.update();
     }
 

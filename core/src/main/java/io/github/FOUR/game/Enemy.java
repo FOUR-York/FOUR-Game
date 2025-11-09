@@ -24,7 +24,7 @@ public class Enemy extends LivingThing {
             //if not, patrol
             patrol(range);
         }
-        sprite.setPosition(x-16, y+16);
+        sprite.setPosition(x-16, y-16);
     }
 
     public void kill() {}
@@ -39,7 +39,7 @@ public class Enemy extends LivingThing {
             rx += (float) (Math.cos(angle) * 4);
             ry += (float) (Math.sin(angle) * 4);
 
-            if (Main.mapW[(int) ((mapHeight - (ry)) / 32) - 1][(int) rx / 32] > 0) {
+            if (Main.mapW[(int) ((mapHeight - (ry)) / 32)][(int) rx / 32] > 0) {
                 return false;
             }
         }
@@ -62,7 +62,7 @@ public class Enemy extends LivingThing {
             float dx = (float) (Math.cos(angle) * speed * delta);
             float dy = (float) (Math.sin(angle) * speed * delta);
 
-            if (Main.mapW[(int) ((mapHeight-y-dy)/32)-1][(int) (x+dx)/32] <= 0) {
+            if (Main.mapW[(int) ((mapHeight-y-dy)/32)][(int) (x+dx)/32] <= 0) {
                 x += dx;
                 y += dy;
             }
@@ -97,7 +97,7 @@ public class Enemy extends LivingThing {
         float dx = (float) (Math.cos(angle) * speed * delta);
         float dy = (float) (Math.sin(angle) * speed * delta);
 
-        if (Main.mapW[(int) ((mapHeight-y-dy)/32)-1][(int) (x+dx)/32] <= 0) {
+        if (Main.mapW[(int) ((mapHeight-y-dy)/32)][(int) (x+dx)/32] <= 0) {
             x += dx;
             y += dy;
         }

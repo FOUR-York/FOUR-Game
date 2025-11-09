@@ -5,6 +5,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class Player extends LivingThing {
     private float stateTime = 0f, swingTime = 0f;
@@ -36,7 +38,7 @@ public class Player extends LivingThing {
         stateTime += delta;
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            if (Main.mapW[(int) ((mapHeight-(y+16))/32)-1][(int) x/32] <= 0) {y += speed * delta;}
+            if (Main.mapW[(int) ((mapHeight-(y+16))/32)][(int) x/32] <= 0) {y += speed * delta;}
 
             TextureRegion frame = walkUp.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
@@ -48,7 +50,7 @@ public class Player extends LivingThing {
             left = false;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            if (Main.mapW[(int) ((mapHeight-(y-16))/32)-1][(int) x/32] <= 0) {y -= speed * delta;}
+            if (Main.mapW[(int) ((mapHeight-(y-16))/32)][(int) x/32] <= 0) {y -= speed * delta;}
 
             TextureRegion frame = walkDown.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
@@ -60,7 +62,7 @@ public class Player extends LivingThing {
             left = false;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            if (Main.mapW[(int) ((mapHeight-y)/32)-1][(int) (x+16)/32] <= 0) {x += speed * delta;}
+            if (Main.mapW[(int) ((mapHeight-y)/32)][(int) (x+16)/32] <= 0) {x += speed * delta;}
 
             TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
@@ -72,7 +74,7 @@ public class Player extends LivingThing {
             down = false;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            if (Main.mapW[(int) ((mapHeight-y)/32)-1][(int) (x-16)/32] <= 0) {x -= speed * delta;}
+            if (Main.mapW[(int) ((mapHeight-y)/32)][(int) (x-16)/32] <= 0) {x -= speed * delta;}
 
             TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
@@ -84,7 +86,7 @@ public class Player extends LivingThing {
             down = false;
         }
 
-        sprite.setPosition(x-16, y+16);
+        sprite.setPosition(x-16, y-16);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             if (!swinging) {
@@ -145,4 +147,36 @@ public class Player extends LivingThing {
     }
 
     public void kill() {}
+
+    public void drawFOV(ShapeDrawer drawer, int fov) {
+        for (int r = 0; r < fov; r++) {
+            float maxDist = 640;
+
+            float angle = (float) Math.toRadians(r);
+            float[] startPos = rayToNearestWall(angle, maxDist);
+            float dist = (float) Math.sqrt(Math.pow(startPos[0] - x, 2) + Math.pow(startPos[1] - y, 2));
+
+            if (dist <= maxDist) {
+                float[] endPos = new float[] {startPos[0] + ((float) (Math.cos(angle) * maxDist)), startPos[1] + ((float) (Math.sin(angle) * maxDist))};
+
+                drawer.setColor(0f, 0f, 0f, 1f);
+                drawer.line(startPos[0], startPos[1], endPos[0], endPos[1], 7f);
+            }
+        }
+    }
+
+    private float[] rayToNearestWall(float angle, float maxDist) {
+        float rx = x;
+        float ry = y;
+
+        for (int i = 0; i <= maxDist/4; i++) {
+            rx += (float) (Math.cos(angle) * 4);
+            ry += (float) (Math.sin(angle) * 4);
+
+            if (Main.mapW[(int) ((mapHeight - (ry)) / 32)][(int) rx / 32] == 1) {
+                return new float[] { rx, ry };
+            }
+        }
+        return new float[] {9999999, 9999999};
+    }
 }
