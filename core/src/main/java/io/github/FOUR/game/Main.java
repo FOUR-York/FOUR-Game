@@ -2,6 +2,8 @@ package io.github.FOUR.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -12,33 +14,39 @@ import space.earlygrey.shapedrawer.ShapeDrawer;
 public class Main extends ApplicationAdapter {
     public static final int WORLD_WIDTH = 640, WORLD_HEIGHT = 360;
 
+    private static boolean ended = false, won = false, lost = false;
+
     private static OrthographicCamera camera;
     private static FitViewport viewport;
     private static SpriteBatch batch;
 
     private static ShapeDrawer shapeDrawer;
 
-    private Texture drawerTexture;
-    private Texture playerTexture;
-    private Texture enemyTexture;
+    private static Texture drawerTexture, playerTexture, enemyTexture, floorTexture;
+    private static TextureRegion[] floorTiles;
+
+    public static Sound hitSound, fallSound, deathSound, awakeSound;
+    public static Music music1;
 
     //Map key:
     //1 = basic wall
     //0 = empty
     //-1 = player spawn
+    // -2 = win space tbi
+    // -3 = damage tick tile
 
     //>0 = solid
     //<=0 = no collision
     public static final int[][] mapW = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,-3,-3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,-3,-3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1,0,-2,1,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -51,26 +59,27 @@ public class Main extends ApplicationAdapter {
         {1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
     };
-    public static final int[][] mapE = {
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
+    public static final int[][] mapF = {
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
     };
     public static final int mapX = 20, mapY = 20, mapS = 32;
 
@@ -92,14 +101,21 @@ public class Main extends ApplicationAdapter {
         player = new Player(playerSpawn[0], playerSpawn[1], 100f, 100, 10, playerTexture);
 
         enemyTexture = new Texture(Gdx.files.internal("textures/enemy.png"));
-        enemies[0] = new Enemy(200, 50, 50, 100, 10, 50, enemyTexture);
+        enemies[0] = new Enemy(200, 50, 50, 100, 5, 160, enemyTexture);
+
+        floorTexture = new Texture(Gdx.files.internal("textures/floor.png"));
+        floorTiles = new TextureRegion[] {new TextureRegion(floorTexture, 0, 0, 32, 32)};
+
+        hitSound = Gdx.audio.newSound(Gdx.files.internal("audio/hit.mp3"));
     }
 
     @Override
     public void render() {
-        input();
-        logic();
-        draw();
+        if (!ended) {
+            input();
+            logic();
+            draw();
+        }
     }
 
     public void input() {
@@ -120,7 +136,8 @@ public class Main extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.begin();
-        drawMap2D();
+        drawMapF2D();
+        drawMapW2D();
         for (Enemy enemy : enemies) {
             if (enemy != null) {
                 enemy.draw(batch);
@@ -139,6 +156,8 @@ public class Main extends ApplicationAdapter {
         playerTexture.dispose();
         drawerTexture.dispose();
         enemyTexture.dispose();
+        floorTexture.dispose();
+        hitSound.dispose();
     }
 
     @Override
@@ -146,12 +165,22 @@ public class Main extends ApplicationAdapter {
         viewport.update(width, height);
     }
 
-    private void drawMap2D() {
+    public static void win() {
+        ended = true;
+        won = true;
+    }
+
+    public static void lose() {
+        ended = true;
+        lost = true;
+    }
+
+    private void drawMapW2D() {
         int x, y, xo, yo;
         for(y = 0; y < mapY; y++) {
             for(x = 0; x < mapX; x++) {
-                if(mapW[y][x] == 0) {
-                    shapeDrawer.setColor(1f,1f,1f,1f);
+                if(mapW[y][x] == 1) {
+                    shapeDrawer.setColor(0f,0f,0f,1f);
                     xo = x * mapS;
                     yo = (mapY*mapS)-((y+1) * mapS);
                     shapeDrawer.filledRectangle(xo,yo,mapS-1,mapS-1);
@@ -159,6 +188,20 @@ public class Main extends ApplicationAdapter {
             }
         }
     }
+
+    private void drawMapF2D() {
+        int x, y, xo, yo;
+        for(y = 0; y < mapY; y++) {
+            for(x = 0; x < mapX; x++) {
+                if(mapF[y][x] == 1) {
+                    xo = x * mapS;
+                    yo = (mapY*mapS)-((y+1) * mapS);
+                    batch.draw(floorTiles[0], xo, yo);
+                }
+            }
+        }
+    }
+
 
     private void updateCamera() {
         camera.position.set(player.x, player.y, 0);

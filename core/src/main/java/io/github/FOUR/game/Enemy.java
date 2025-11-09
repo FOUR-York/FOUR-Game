@@ -1,34 +1,163 @@
 package io.github.FOUR.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Enemy extends LivingThing {
-    public float range;
-    public boolean patrolling = false, chasing = false, swinging = false;
+    private float range;
 
-    private float targetX, targetY;
+    //timers
+    private float stateTime = 0f, swingTime = 0f, hitTime = 0f;
+
+    //states
+    private boolean patrolling = false, chasing = false, swinging = false, down = true, up = false, right = false, left = false, hitSuccess = false, beingHit = false;
+
+    private float targetX, targetY, cAngle;
     private int mapHeight = (Main.mapS * Main.mapY);
 
+    private Animation<TextureRegion> walkUp, walkSide, walkDown;
+    private TextureRegion[] walkUpFrames, walkSideFrames, walkDownFrames;
+
+    //private Sound hitSound;
+
+    /**
+     * the constructor for the enemy class
+     *
+     * @param x initial x pos
+     * @param y initial y pos
+     * @param speed movement speed
+     * @param hp initial hp
+     * @param attack damage per hit
+     * @param range max sight range
+     * @param texture enemy sprite sheet
+     */
     public Enemy(float x, float y, float speed, int hp, int attack, float range, Texture texture) {
         super(x, y, speed, hp, attack, texture);
         this.range = range;
+
+        //Create texture region arrays for anims
+        walkDownFrames = new TextureRegion[] {new TextureRegion(texture, 0, 0, 32, 32), new TextureRegion(texture, 32, 0, 32, 32),};
+        walkSideFrames = new TextureRegion[] {new TextureRegion(texture, 64, 0, 32, 32), new TextureRegion(texture, 96, 0, 32, 32),};
+        walkUpFrames = new TextureRegion[] {new TextureRegion(texture, 128, 0, 32, 32), new TextureRegion(texture, 160, 0, 32, 32),};
+
+        //Create anims with the arrays
+        walkDown = new Animation<TextureRegion>(0.1f, walkDownFrames);
+        walkSide = new Animation<TextureRegion>(0.1f, walkSideFrames);
+        walkUp = new Animation<TextureRegion>(0.1f, walkUpFrames);
     }
 
+    /**
+     * handles enemy AI
+     * if the player is in sight, chase and try to attack
+     * if not then patrol
+     */
     public void move() {
-        if (isPlayerInSight(Main.player)) {
-            //if player in los, chase
-            chase(Main.player);
+        float delta = Gdx.graphics.getDeltaTime();
+        stateTime += delta;
+
+        if (!dead) {
+            if (isPlayerInSight(Main.player) && !Main.player.dead) {
+                //if player in los, chase
+                if (!swinging) {
+                    chase(Main.player);
+                }
+                else {
+                    swing(Main.player);
+                }
+            }
+            else {
+                //if not, patrol
+                patrol(range);
+            }
+            //set the sprite pos and offset it to be centered
+
+            if (!swinging) {
+                //make sure angle is between 0 and 2 pi
+                if (cAngle < 0f) {
+                    cAngle += 2 * (float) Math.PI;
+                }
+                if (cAngle > 2 * (float) Math.PI) {
+                    cAngle -= 2 * (float) Math.PI;
+                }
+
+                if (cAngle <= Math.toRadians(45) || cAngle > Math.toRadians(315)) {
+                    //state
+                    right = true;
+                    up = false;
+                    down = false;
+                    left = false;
+
+                    //animation
+                    TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
+                    sprite.setRegion(frame);
+                    sprite.flip(false, false);
+                }
+                else if (cAngle > Math.toRadians(45) && cAngle <= Math.toRadians(135)) {
+                    up = true;
+                    right = false;
+                    down = false;
+                    left = false;
+
+                    TextureRegion frame = walkUp.getKeyFrame(stateTime, true);
+                    sprite.setRegion(frame);
+                    sprite.flip(false, false);
+                }
+                else if (cAngle > Math.toRadians(135) && cAngle <= Math.toRadians(225)) {
+                    left = true;
+                    right = false;
+                    up = false;
+                    down = false;
+
+                    TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
+                    sprite.setRegion(frame);
+                    sprite.flip(true, false);
+                }
+                else {
+                    down = true;
+                    up = false;
+                    right = false;
+                    left = false;
+
+                    TextureRegion frame = walkDown.getKeyFrame(stateTime, true);
+                    sprite.setRegion(frame);
+                    sprite.flip(false, false);
+                }
+            }
+
+            if (beingHit) {
+                hitTime += delta;
+                sprite.setColor(Color.RED);
+                if (hitTime > 0.5f) {
+                    beingHit = false;
+                }
+            }
+            else {
+                sprite.setColor(Color.WHITE);
+            }
         }
-        else {
-            //if not, patrol
-            patrol(range);
-        }
+
         sprite.setPosition(x-16, y-16);
+
+        if (stateTime > 300) {
+            stateTime = 0f;
+        }
     }
 
-    public void kill() {}
+    public void kill() {
+        texture.dispose();
+    }
 
+    /**
+     * uses simple raycasting to calculate whether the enemy can see the player
+     *
+     * @param player the player, should be defined in main
+     *
+     * @return true if the player is in sight, false if not
+     */
     private boolean isPlayerInSight(Player player) {
         float angle = (float) Math.atan2(player.y - y, player.x - x);
         float dist = (float) Math.sqrt(Math.pow(player.x - x, 2) + Math.pow(player.y - y, 2));
@@ -46,6 +175,10 @@ public class Enemy extends LivingThing {
         return true;
     }
 
+    /**
+     *
+     * @param player
+     */
     private void chase(Player player) {
         chasing = true;
 
@@ -55,7 +188,9 @@ public class Enemy extends LivingThing {
         float angle = (float) Math.atan2(player.y - y, player.x - x);
         float dist = (float) Math.sqrt(Math.pow(player.x - x, 2) + Math.pow(player.y - y, 2));
 
-        if (dist < 8) {
+        cAngle = angle;
+
+        if (dist < 32) {
             swing(player);
         }
         else {
@@ -72,9 +207,95 @@ public class Enemy extends LivingThing {
     }
 
     private void swing(Player player) {
-        swinging = true;
+        float delta = Gdx.graphics.getDeltaTime();
+        float dist = (float) Math.sqrt(Math.pow(player.x - x, 2) + Math.pow(player.y - y, 2));
 
-        swinging = false;
+        if (!swinging) {
+            swinging = true;
+            swingTime = 0f;
+        }
+        else {
+            if (down) {
+                //first frame of anim
+                sprite.setRegion(new TextureRegion(texture, 0, 32, 32, 32));
+                sprite.flip(false, false);
+
+                swingTime += delta;
+
+                if (dist < 48 && !hitSuccess) {
+                    player.damage(attack);
+                    hitSuccess = true;
+                }
+
+                if (swingTime >= 0.5f) {
+                    //second frame of anim
+                    sprite.setRegion(new TextureRegion(texture, 0, 0, 32, 32));
+                    sprite.flip(false, false);
+
+                    swinging = false;
+                    hitSuccess = false;
+                }
+
+                //again, the other three directions are pretty much the same
+            }
+            else if (right) {
+                sprite.setRegion(new TextureRegion(texture, 32, 32, 32, 32));
+                sprite.flip(false, false);
+
+                swingTime += delta;
+
+                if (dist < 48 && !hitSuccess) {
+                    player.damage(attack);
+                    hitSuccess = true;
+                }
+
+                if (swingTime >= 0.5f) {
+                    sprite.setRegion(new TextureRegion(texture, 64, 0, 32, 32));
+                    sprite.flip(false, false);
+
+                    swinging = false;
+                    hitSuccess = false;
+                }
+            }
+            else if (left) {
+                sprite.setRegion(new TextureRegion(texture, 32, 32, 32, 32));
+                sprite.flip(true, false);
+
+                swingTime += delta;
+
+                if (dist < 48 && !hitSuccess) {
+                    player.damage(attack);
+                    hitSuccess = true;
+                }
+
+                if (swingTime >= 0.5f) {
+                    sprite.setRegion(new TextureRegion(texture, 64, 0, 32, 32));
+                    sprite.flip(true, false);
+
+                    swinging = false;
+                    hitSuccess = false;
+                }
+            }
+            else if (up) {
+                sprite.setRegion(new TextureRegion(texture, 64, 32, 32, 32));
+                sprite.flip(false, false);
+
+                swingTime += delta;
+
+                if (dist < 48 && !hitSuccess) {
+                    player.damage(attack);
+                    hitSuccess = true;
+                }
+
+                if (swingTime >= 0.5f) {
+                    sprite.setRegion(new TextureRegion(texture, 128, 0, 32, 32));
+                    sprite.flip(false, false);
+
+                    swinging = false;
+                    hitSuccess = false;
+                }
+            }
+        }
     }
 
     private void patrol(float range) {
@@ -94,6 +315,8 @@ public class Enemy extends LivingThing {
 
         float angle = (float) Math.atan2(targetY - y, targetX - x);
 
+        cAngle = angle;
+
         float dx = (float) (Math.cos(angle) * speed * delta);
         float dy = (float) (Math.sin(angle) * speed * delta);
 
@@ -108,5 +331,13 @@ public class Enemy extends LivingThing {
         if (((float) Math.sqrt(Math.pow(targetX - x, 2) + Math.pow(targetY - y, 2))) < 5) {
             patrolling = false;
         }
+    }
+
+    @Override
+    public void damage(int damage) {
+        super.damage(damage);
+        hitTime = 0f;
+        beingHit = true;
+        Main.hitSound.play();
     }
 }
