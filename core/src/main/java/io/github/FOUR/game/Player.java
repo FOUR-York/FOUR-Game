@@ -49,7 +49,6 @@ public class Player extends LivingThing {
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             if (Main.mapW[(int) ((mapHeight-(y-16))/32)-1][(int) x/32] <= 0) {y -= speed * delta;}
-
             TextureRegion frame = walkDown.getKeyFrame(stateTime, true);
             sprite.setRegion(frame);
             sprite.flip(false, false);

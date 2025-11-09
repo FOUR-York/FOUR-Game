@@ -5,8 +5,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import space.earlygrey.shapedrawer.ShapeDrawer;
+
+import java.util.Random;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
@@ -29,54 +32,13 @@ public class Main extends ApplicationAdapter {
 
     //>0 = solid
     //<=0 = no collision
-    public static final int[][] mapW = {
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    };
-    public static final int[][] mapE = {
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
-    };
-    public static final int mapX = 20, mapY = 20, mapS = 32;
+    public static int[][] mapW;
+    public static int mapX, mapY, mapS = 32;
 
     public static Player player;
 
     public static Enemy[] enemies = new Enemy[32];
+    public Random random;
 
     @Override
     public void create() {
@@ -86,10 +48,24 @@ public class Main extends ApplicationAdapter {
         batch = new SpriteBatch();
 
         initialiseShapeDrawer();
+        // generate map
+        random = new Random();
+        random.setSeed(System.currentTimeMillis());
+        ProcGen p = new ProcGen(random);
+        // copy p.map to mapW
+        // need to go backwards...
+        mapX = p.roomX*p.blockSize;
+        mapY = p.roomY*p.blockSize;
+        mapW = new int[mapY][mapX];
+        for  (int i = 0; i < mapX; i++) {
+            for (int j = 0; j < mapY; j++) {
+                mapW[j][i] = p.map[p.cellToMap(i, j)];
+            }
+        }
 
         playerTexture = new Texture(Gdx.files.internal("textures/player.png"));
         float[] playerSpawn = findPlayerSpawn();
-        player = new Player(playerSpawn[0], playerSpawn[1], 100f, 100, 10, playerTexture);
+        player = new Player(playerSpawn[0], playerSpawn[1], 1000f, 100, 10, playerTexture);
 
         enemyTexture = new Texture(Gdx.files.internal("textures/enemy.png"));
         enemies[0] = new Enemy(200, 50, 50, 100, 10, 50, enemyTexture);
