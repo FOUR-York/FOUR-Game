@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import space.earlygrey.shapedrawer.ShapeDrawer;
@@ -373,5 +374,12 @@ public class Player extends LivingThing {
         hitTime = 0f;
         beingHit = true;
         Main.hitSound.play();
+    }
+
+    public void drawUI(ShapeDrawer drawer, SpriteBatch batch, Texture border) {
+        batch.draw(border, 0, 0);
+
+        drawer.setColor(Color.GREEN);
+        drawer.line(45f, 27f, ((float) hp) * 1.1f + 45f, 27f, 6f);
     }
 }

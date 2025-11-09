@@ -153,6 +153,12 @@ public class Enemy extends LivingThing {
     public void kill() {
         texture.dispose();
         Main.deathSound.play();
+
+        float rng = (float) Math.random() * 100;
+        if (rng <= 20) {
+            Main.spawnItem(x, y, 1);
+        }
+
         Main.removeEnemy(index);
     }
 

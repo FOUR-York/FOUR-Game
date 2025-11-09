@@ -22,11 +22,11 @@ public class Main extends ApplicationAdapter {
 
     private static OrthographicCamera camera;
     private static FitViewport viewport;
-    private static SpriteBatch batch;
+    private static SpriteBatch batch, UIbatch;
 
-    private static ShapeDrawer shapeDrawer;
+    private static ShapeDrawer shapeDrawer, UIdrawer;
 
-    private static Texture drawerTexture, playerTexture, enemyTexture, floorTexture, itemTexture;
+    private static Texture drawerTexture, playerTexture, enemyTexture, floorTexture, itemTexture, hpTexture;
     private static TextureRegion[] floorTiles;
 
     public static Sound hitSound, fallSound, deathSound, awakeSound, pickUpSound;
@@ -62,8 +62,9 @@ public class Main extends ApplicationAdapter {
         camera = new  OrthographicCamera();
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         batch = new SpriteBatch();
+        UIbatch = new SpriteBatch();
 
-        initialiseShapeDrawer();
+        initialiseShapeDrawers();
         // generate map
         random = new Random();
         random.setSeed(System.currentTimeMillis());
@@ -95,6 +96,8 @@ public class Main extends ApplicationAdapter {
         floorTiles = new TextureRegion[] {new TextureRegion(floorTexture, 0, 0, 32, 32)};
 
         itemTexture = new Texture(Gdx.files.internal("textures/item.png"));
+
+        hpTexture = new Texture(Gdx.files.internal("textures/hp.png"));
 
         hitSound = Gdx.audio.newSound(Gdx.files.internal("audio/hit.mp3"));
         deathSound = Gdx.audio.newSound(Gdx.files.internal("audio/death.wav"));
@@ -152,18 +155,25 @@ public class Main extends ApplicationAdapter {
         }
         player.draw(batch);
         player.drawFOV(shapeDrawer, 360);
+
         batch.setProjectionMatrix(camera.combined);
         batch.end();
+
+        UIbatch.begin();
+        player.drawUI(UIdrawer, UIbatch, hpTexture);
+        UIbatch.end();
     }
 
 
     @Override
     public void dispose() {
         batch.dispose();
+        UIbatch.dispose();
         playerTexture.dispose();
         drawerTexture.dispose();
         enemyTexture.dispose();
         floorTexture.dispose();
+        hpTexture.dispose();
         hitSound.dispose();
         deathSound.dispose();
         awakeSound.dispose();
@@ -224,7 +234,7 @@ public class Main extends ApplicationAdapter {
         camera.update();
     }
 
-    private void initialiseShapeDrawer() {
+    private void initialiseShapeDrawers() {
         Pixmap drawerPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         drawerPixmap.setColor(Color.WHITE);
         drawerPixmap.drawPixel(0, 0);
@@ -232,6 +242,7 @@ public class Main extends ApplicationAdapter {
         drawerPixmap.dispose();
         TextureRegion drawerRegion = new TextureRegion(drawerTexture, 0, 0, 1, 1);
         shapeDrawer = new ShapeDrawer(batch, drawerRegion);
+        UIdrawer = new ShapeDrawer(UIbatch, drawerRegion);
     }
 
     private float[] findPlayerSpawn() {
@@ -253,7 +264,6 @@ public class Main extends ApplicationAdapter {
 
     public static void removeEnemy(int index) {
         enemies[index] = null;
-        enemyCount--;
     }
 
     public static void spawnItem(float x, float y, int type) {
@@ -263,6 +273,5 @@ public class Main extends ApplicationAdapter {
 
     public static void removeItem(int index) {
         items[index] = null;
-        itemCount--;
     }
 }
