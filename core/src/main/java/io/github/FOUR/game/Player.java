@@ -250,6 +250,8 @@ public class Player extends LivingThing {
                 stateTime = 0f;
                 dead = false;
 
+                Main.awakeSound.play();
+
                 sprite.setRegion(walkDownFrames[0]);
                 sprite.flip(false, false);
             }
@@ -295,6 +297,7 @@ public class Player extends LivingThing {
      */
     public void kill() {
         if (!dead) {
+            Main.fallSound.play();
             dead = true;
             downTime = 0f;
         }

@@ -84,7 +84,7 @@ public class Main extends ApplicationAdapter {
 
         playerTexture = new Texture(Gdx.files.internal("textures/player.png"));
         float[] playerSpawn = findPlayerSpawn();
-        player = new Player(playerSpawn[0], playerSpawn[1], 1000f, 100, 10, playerTexture);
+        player = new Player(playerSpawn[0], playerSpawn[1], 100f, 100, 10, playerTexture);
 
         enemyTexture = new Texture(Gdx.files.internal("textures/enemy.png"));
 
@@ -92,6 +92,9 @@ public class Main extends ApplicationAdapter {
         floorTiles = new TextureRegion[] {new TextureRegion(floorTexture, 0, 0, 32, 32)};
 
         hitSound = Gdx.audio.newSound(Gdx.files.internal("audio/hit.mp3"));
+        deathSound = Gdx.audio.newSound(Gdx.files.internal("audio/death.wav"));
+        awakeSound = Gdx.audio.newSound(Gdx.files.internal("audio/awake.wav"));
+        fallSound = Gdx.audio.newSound(Gdx.files.internal("audio/fall.wav"));
     }
 
     @Override
@@ -151,6 +154,9 @@ public class Main extends ApplicationAdapter {
         enemyTexture.dispose();
         floorTexture.dispose();
         hitSound.dispose();
+        deathSound.dispose();
+        awakeSound.dispose();
+        fallSound.dispose();
     }
 
     @Override
@@ -172,11 +178,16 @@ public class Main extends ApplicationAdapter {
         int x, y, xo, yo;
         for(y = 0; y < mapY; y++) {
             for(x = 0; x < mapX; x++) {
-                if(mapW[y][x] == 1) {
-                    shapeDrawer.setColor(0f,0f,0f,1f);
-                    xo = x * mapS;
-                    yo = (mapY*mapS)-((y+1) * mapS);
-                    shapeDrawer.filledRectangle(xo,yo,mapS-1,mapS-1);
+                xo = x * mapS;
+                yo = (mapY*mapS)-((y+1) * mapS);
+                switch (mapW[y][x]) {
+                    case 1:
+                        shapeDrawer.setColor(0f,0f,0f,1f);
+                        shapeDrawer.filledRectangle(xo,yo,mapS,mapS);
+                        break;
+                    case -4:
+                        spawnEnemy(xo, yo);
+                        break;
                 }
             }
         }
@@ -223,12 +234,12 @@ public class Main extends ApplicationAdapter {
         throw new NoPlayerSpawnException("No player spawn found");
     }
 
-    private void spawnEnemy(float x, float y) {
+    public static void spawnEnemy(float x, float y) {
         enemies[enemyCount] = new Enemy(x, y, 50, 100, 5, 160, enemyTexture, enemyCount);
         enemyCount++;
     }
 
-    private void removeEnemy(int index) {
+    public static void removeEnemy(int index) {
         enemies[index] = null;
         enemyCount--;
     }
