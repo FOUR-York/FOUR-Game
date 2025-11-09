@@ -131,6 +131,11 @@ public class Main extends ApplicationAdapter {
                 enemy.move();
             }
         }
+        for (Item item : items) {
+            if (item != null) {
+                item.collision();
+            }
+        }
         player.collision();
     }
 
