@@ -263,7 +263,7 @@ public class Main extends ApplicationAdapter {
                         shapeDrawer.filledRectangle(xo,yo,mapS,mapS);
                         break;
                     case -4:
-                        spawnEnemy(xo, yo);
+                        spawnEnemy((x*mapS)+((float)mapS/2), (mapY*mapS)-(((y)*mapS)+((float)mapS/2)));
                         break;
                 }
             }
@@ -320,7 +320,7 @@ public class Main extends ApplicationAdapter {
         for (y = 0; y < mapY; y++) {
             for (x = 0; x < mapX; x++) {
                 if (mapW[y][x] == -1) {
-                    return new float[] {(x*mapS)+((float)mapS/2), (mapY*mapS)-(((y+1)*mapS)+((float)mapS/2))};
+                    return new float[] {(x*mapS)+((float)mapS/2), (mapY*mapS)-(((y)*mapS)+((float)mapS/2))};
                 }
             }
         }
