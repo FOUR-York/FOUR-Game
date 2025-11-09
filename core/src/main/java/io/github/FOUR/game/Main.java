@@ -8,7 +8,10 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
@@ -26,17 +29,20 @@ public class Main extends ApplicationAdapter {
 
     private static OrthographicCamera camera;
     private static FitViewport viewport;
-    private static SpriteBatch batch, UIbatch;
+    private static SpriteBatch batch, Scbatch, UIbatch;
+    private static ShaderProgram shaderProgram;
 
     private static ShapeDrawer shapeDrawer, UIdrawer;
 
     private static BitmapFont font;
 
-    private static Texture drawerTexture, playerTexture, enemyTexture, floorTexture, itemTexture, hpTexture, winTexture, loseTexture;
+    private static Texture drawerTexture, playerTexture, enemyTexture, floorTexture, itemTexture, hpTexture, winTexture, loseTexture, shaderSpace;
     private static TextureRegion[] floorTiles;
 
     public static Sound hitSound, fallSound, deathSound, awakeSound, pickUpSound, winSound, loseSound;
     public static Music music1;
+
+    public static float shaderTime;
 
     //Map key:
     //1 = basic wall
@@ -69,6 +75,7 @@ public class Main extends ApplicationAdapter {
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         batch = new SpriteBatch();
         UIbatch = new SpriteBatch();
+        Scbatch = new SpriteBatch();
         font = new BitmapFont();
 
         initialiseShapeDrawers();
@@ -121,6 +128,16 @@ public class Main extends ApplicationAdapter {
         music1.setLooping(true);
         music1.setVolume(0.2f);
         music1.play();
+
+        // screen shader
+        shaderSpace = new Texture("textures/blank.png");
+        String vertexShader = Gdx.files.internal("shaders/vertex.glsl").readString();
+        String fragmentShader = Gdx.files.internal("shaders/fragment.glsl").readString();
+        shaderProgram = new ShaderProgram(vertexShader,fragmentShader);
+        shaderProgram.pedantic = false;
+
+        Scbatch.setShader(shaderProgram);
+        shaderTime = 0;
     }
 
     @Override
@@ -197,6 +214,8 @@ public class Main extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
         batch.end();
 
+        drawScreenShader();
+
         UIbatch.begin();
         player.drawUI(UIdrawer, UIbatch, hpTexture);
         CharSequence timeStr = "Time: " + time;
@@ -204,6 +223,24 @@ public class Main extends ApplicationAdapter {
         font.draw(UIbatch, timeStr, 10, WORLD_HEIGHT - 10);
         font.draw(UIbatch, scoreStr, 10, WORLD_HEIGHT - 30);
         UIbatch.end();
+    }
+    public void drawScreenShader () {
+
+        shaderTime+=Gdx.graphics.getDeltaTime();
+
+        Scbatch.begin();
+
+        // pass in the following to the fragment glsl scripts
+        Vector2 v = new Vector2(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+        v.x = v.x / Gdx.graphics.getWidth();
+        v.y = v.y / Gdx.graphics.getHeight();
+        shaderProgram.setUniformf("center", v);
+        shaderProgram.setUniformf("u_time", shaderTime);
+        shaderProgram.setUniformf("u_speed", 1f);
+        shaderProgram.setUniformf("u_resolution", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        Scbatch.draw(shaderSpace, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Scbatch.end();
     }
 
 
@@ -226,6 +263,9 @@ public class Main extends ApplicationAdapter {
         winSound.dispose();
         loseSound.dispose();
         music1.dispose();
+        Scbatch.dispose();
+        shaderSpace.dispose();
+        shaderProgram.dispose();
     }
 
     @Override

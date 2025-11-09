@@ -90,13 +90,7 @@ public class ProcGen {
             }
         }
     }
-    /* recursive backtracking
-    Select a random cell to start.
-    Choose a random adjacent cell. Only create a passage if that cell has not been visited yet.
-    Repeat the process until there are no more adjacent cells to choose from.
-    Start backtracking until you can choose a cell again.
-    The algorithm is done when you return to the starting cell.
-     */
+
     public void display() {
         for (int y = roomY*blockSize-1; y > -1; y--) {
             for (int x = 0; x < roomX*blockSize; x++) {
@@ -150,7 +144,6 @@ class RecursiveBacktracker {
             if (grid[gridToCell(nextX, nextY)] != -1) continue;
 
             grid[gridToCell(x, y)] |= dir;
-//            grid[gridToCell(nextX, nextY)] |= opposite(dir);
 
             branch(nextX, nextY);
         }
@@ -161,26 +154,7 @@ class RecursiveBacktracker {
     }
 
     int gridToCell(int x, int y) {
-        return x + y * dimensionsX;  // FIXED
-    }
-
-//    int opposite(int dir) {
-//        return switch (dir) {
-//            case 1 -> 4;
-//            case 2 -> 8;
-//            case 4 -> 1;
-//            case 8 -> 2;
-//            default -> 0;
-//        };
-//    }
-
-    void display() {
-        for (int y = dimensionsY-1; y > -1; y--) {
-            for (int x = 0; x < dimensionsX; x++) {
-                System.out.print(grid[gridToCell(x, y)] + ",");
-            }
-            System.out.println();
-        }
+        return x + y * dimensionsX;
     }
 }
 
