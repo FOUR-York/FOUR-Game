@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Enemy extends LivingThing {
     private float range;
+    public int index;
 
     //timers
     private float stateTime = 0f, swingTime = 0f, hitTime = 0f;
@@ -35,9 +36,10 @@ public class Enemy extends LivingThing {
      * @param range max sight range
      * @param texture enemy sprite sheet
      */
-    public Enemy(float x, float y, float speed, int hp, int attack, float range, Texture texture) {
+    public Enemy(float x, float y, float speed, int hp, int attack, float range, Texture texture, int index) {
         super(x, y, speed, hp, attack, texture);
         this.range = range;
+        this.index = index;
 
         //Create texture region arrays for anims
         walkDownFrames = new TextureRegion[] {new TextureRegion(texture, 0, 0, 32, 32), new TextureRegion(texture, 32, 0, 32, 32),};

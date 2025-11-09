@@ -34,6 +34,7 @@ public class Main extends ApplicationAdapter {
     //-1 = player spawn
     // -2 = win space tbi
     // -3 = damage tick tile
+    // -4 = enemy tile
 
     //>0 = solid
     //<=0 = no collision
@@ -85,7 +86,8 @@ public class Main extends ApplicationAdapter {
 
     public static Player player;
 
-    public static Enemy[] enemies = new Enemy[32];
+    public static Enemy[] enemies = new Enemy[100];
+    public static int enemyCount = 0;
 
     @Override
     public void create() {
@@ -101,7 +103,6 @@ public class Main extends ApplicationAdapter {
         player = new Player(playerSpawn[0], playerSpawn[1], 100f, 100, 10, playerTexture);
 
         enemyTexture = new Texture(Gdx.files.internal("textures/enemy.png"));
-        enemies[0] = new Enemy(200, 50, 50, 100, 5, 160, enemyTexture);
 
         floorTexture = new Texture(Gdx.files.internal("textures/floor.png"));
         floorTiles = new TextureRegion[] {new TextureRegion(floorTexture, 0, 0, 32, 32)};
@@ -115,6 +116,14 @@ public class Main extends ApplicationAdapter {
             input();
             logic();
             draw();
+        }
+
+        if (won) {
+
+        }
+
+        if (lost) {
+
         }
     }
 
@@ -228,5 +237,15 @@ public class Main extends ApplicationAdapter {
             }
         }
         throw new NoPlayerSpawnException("No player spawn found");
+    }
+
+    private void spawnEnemy(float x, float y) {
+        enemies[enemyCount] = new Enemy(x, y, 50, 100, 5, 160, enemyTexture, enemyCount);
+        enemyCount++;
+    }
+
+    private void removeEnemy(int index) {
+        enemies[index] = null;
+        enemyCount--;
     }
 }
