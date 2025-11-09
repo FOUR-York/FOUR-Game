@@ -260,9 +260,7 @@ public class Player extends LivingThing {
         }
 
         if (stateTime > 300f) {
-            //timer logic but will move this when ui is done
             stateTime = 0f;
-            Main.lose();
         }
     }
 
@@ -290,6 +288,12 @@ public class Player extends LivingThing {
             if (hp < 100 && dead) {
                 hp++;
             }
+
+            Main.time--;
+            if (Main.time <= 0) {
+                Main.lose();
+            }
+
             collisionTime = 0f;
         }
     }

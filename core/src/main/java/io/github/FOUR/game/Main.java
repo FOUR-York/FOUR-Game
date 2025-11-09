@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
@@ -19,6 +20,8 @@ public class Main extends ApplicationAdapter {
     //the screen size. make sure to change it in lwjgl3 too
     public static final int WORLD_WIDTH = 640, WORLD_HEIGHT = 360;
 
+    public static int time = 300, score = 0;
+
     private static boolean ended = false, won = false, lost = false;
 
     private static OrthographicCamera camera;
@@ -27,7 +30,9 @@ public class Main extends ApplicationAdapter {
 
     private static ShapeDrawer shapeDrawer, UIdrawer;
 
-    private static Texture drawerTexture, playerTexture, enemyTexture, floorTexture, itemTexture, hpTexture;
+    private static BitmapFont font;
+
+    private static Texture drawerTexture, playerTexture, enemyTexture, floorTexture, itemTexture, hpTexture, winTexture, loseTexture;
     private static TextureRegion[] floorTiles;
 
     public static Sound hitSound, fallSound, deathSound, awakeSound, pickUpSound;
@@ -64,6 +69,7 @@ public class Main extends ApplicationAdapter {
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         batch = new SpriteBatch();
         UIbatch = new SpriteBatch();
+        font = new BitmapFont();
 
         initialiseShapeDrawers();
         // generate map
@@ -100,6 +106,9 @@ public class Main extends ApplicationAdapter {
 
         hpTexture = new Texture(Gdx.files.internal("textures/hp.png"));
 
+        winTexture = new Texture(Gdx.files.internal("textures/win.png"));
+        loseTexture = new Texture(Gdx.files.internal("textures/lose.png"));
+
         hitSound = Gdx.audio.newSound(Gdx.files.internal("audio/hit.mp3"));
         deathSound = Gdx.audio.newSound(Gdx.files.internal("audio/death.wav"));
         awakeSound = Gdx.audio.newSound(Gdx.files.internal("audio/awake.wav"));
@@ -116,11 +125,19 @@ public class Main extends ApplicationAdapter {
         }
 
         if (won) {
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+            UIbatch.begin();
+            UIbatch.draw(winTexture, 0, 0);
+            UIbatch.end();
         }
 
         if (lost) {
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+            UIbatch.begin();
+            UIbatch.draw(loseTexture, 0, 0);
+            UIbatch.end();
         }
     }
 
@@ -171,6 +188,10 @@ public class Main extends ApplicationAdapter {
 
         UIbatch.begin();
         player.drawUI(UIdrawer, UIbatch, hpTexture);
+        CharSequence timeStr = "Time: " + time;
+        CharSequence scoreStr = "Score: " + score;
+        font.draw(UIbatch, timeStr, 10, WORLD_HEIGHT - 10);
+        font.draw(UIbatch, scoreStr, 10, WORLD_HEIGHT - 30);
         UIbatch.end();
     }
 
@@ -184,6 +205,8 @@ public class Main extends ApplicationAdapter {
         enemyTexture.dispose();
         floorTexture.dispose();
         hpTexture.dispose();
+        winTexture.dispose();
+        loseTexture.dispose();
         hitSound.dispose();
         deathSound.dispose();
         awakeSound.dispose();
