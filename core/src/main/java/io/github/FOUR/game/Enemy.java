@@ -159,6 +159,8 @@ public class Enemy extends LivingThing {
         texture.dispose();
         Main.deathSound.play();
 
+        Main.score += 100;
+
         float rng = (float) Math.random() * 100;
         if (rng <= 20) {
             Main.spawnItem(x, y, 1);
@@ -247,6 +249,7 @@ public class Enemy extends LivingThing {
                 if (dist < 48 && !hitSuccess) {
                     player.damage(attack);
                     hitSuccess = true;
+                    Main.score -= 10;
                 }
 
                 if (swingTime >= 0.5f) {
@@ -269,6 +272,7 @@ public class Enemy extends LivingThing {
                 if (dist < 48 && !hitSuccess) {
                     player.damage(attack);
                     hitSuccess = true;
+                    Main.score -= 10;
                 }
 
                 if (swingTime >= 0.5f) {
@@ -288,6 +292,7 @@ public class Enemy extends LivingThing {
                 if (dist < 48 && !hitSuccess) {
                     player.damage(attack);
                     hitSuccess = true;
+                    Main.score -= 10;
                 }
 
                 if (swingTime >= 0.5f) {
@@ -307,6 +312,7 @@ public class Enemy extends LivingThing {
                 if (dist < 48 && !hitSuccess) {
                     player.damage(attack);
                     hitSuccess = true;
+                    Main.score -= 10;
                 }
 
                 if (swingTime >= 0.5f) {

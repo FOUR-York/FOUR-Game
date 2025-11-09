@@ -36,6 +36,7 @@ public class Item extends Entity{
             Main.pickUpSound.play();
             switch (type) {
                 case 1:
+                    Main.score += 10;
                     healPlayer(25);
                     break;
             }

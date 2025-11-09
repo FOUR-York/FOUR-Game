@@ -35,7 +35,7 @@ public class Main extends ApplicationAdapter {
     private static Texture drawerTexture, playerTexture, enemyTexture, floorTexture, itemTexture, hpTexture, winTexture, loseTexture;
     private static TextureRegion[] floorTiles;
 
-    public static Sound hitSound, fallSound, deathSound, awakeSound, pickUpSound;
+    public static Sound hitSound, fallSound, deathSound, awakeSound, pickUpSound, winSound, loseSound;
     public static Music music1;
 
     //Map key:
@@ -114,6 +114,13 @@ public class Main extends ApplicationAdapter {
         awakeSound = Gdx.audio.newSound(Gdx.files.internal("audio/awake.wav"));
         fallSound = Gdx.audio.newSound(Gdx.files.internal("audio/fall.wav"));
         pickUpSound = Gdx.audio.newSound(Gdx.files.internal("audio/pickup.wav"));
+        winSound = Gdx.audio.newSound(Gdx.files.internal("audio/win.wav"));
+        loseSound = Gdx.audio.newSound(Gdx.files.internal("audio/lose.wav"));
+
+        music1 = Gdx.audio.newMusic(Gdx.files.internal("audio/music.mp3"));
+        music1.setLooping(true);
+        music1.setVolume(0.2f);
+        music1.play();
     }
 
     @Override
@@ -129,6 +136,8 @@ public class Main extends ApplicationAdapter {
 
             UIbatch.begin();
             UIbatch.draw(winTexture, 0, 0);
+            CharSequence scoreStr = "" + score;
+            font.draw(UIbatch, scoreStr, ((float) WORLD_WIDTH /2) - 25, 75);
             UIbatch.end();
         }
 
@@ -137,6 +146,8 @@ public class Main extends ApplicationAdapter {
 
             UIbatch.begin();
             UIbatch.draw(loseTexture, 0, 0);
+            CharSequence scoreStr = "" + score;
+            font.draw(UIbatch, scoreStr, ((float) WORLD_WIDTH /2) - 25, 75);
             UIbatch.end();
         }
     }
@@ -212,6 +223,9 @@ public class Main extends ApplicationAdapter {
         awakeSound.dispose();
         fallSound.dispose();
         pickUpSound.dispose();
+        winSound.dispose();
+        loseSound.dispose();
+        music1.dispose();
     }
 
     @Override
@@ -220,13 +234,18 @@ public class Main extends ApplicationAdapter {
     }
 
     public static void win() {
+        music1.stop();
         ended = true;
         won = true;
+        score += time * 10;
+        winSound.play();
     }
 
     public static void lose() {
+        music1.stop();
         ended = true;
         lost = true;
+        loseSound.play();
     }
 
     /**
