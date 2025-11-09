@@ -26,10 +26,10 @@ public class Main extends ApplicationAdapter {
 
     private static ShapeDrawer shapeDrawer;
 
-    private static Texture drawerTexture, playerTexture, enemyTexture, floorTexture;
+    private static Texture drawerTexture, playerTexture, enemyTexture, floorTexture, itemTexture;
     private static TextureRegion[] floorTiles;
 
-    public static Sound hitSound, fallSound, deathSound, awakeSound;
+    public static Sound hitSound, fallSound, deathSound, awakeSound, pickUpSound;
     public static Music music1;
 
     //Map key:
@@ -48,8 +48,11 @@ public class Main extends ApplicationAdapter {
 
     public static Player player;
 
-    public static Enemy[] enemies = new Enemy[100];
+    public static Enemy[] enemies = new Enemy[1000];
     public static int enemyCount = 0;
+
+    public static Item[] items = new Item[1000];
+    public static int itemCount = 0;
 
     public Random random;
 
@@ -91,10 +94,13 @@ public class Main extends ApplicationAdapter {
         floorTexture = new Texture(Gdx.files.internal("textures/floor.png"));
         floorTiles = new TextureRegion[] {new TextureRegion(floorTexture, 0, 0, 32, 32)};
 
+        itemTexture = new Texture(Gdx.files.internal("textures/item.png"));
+
         hitSound = Gdx.audio.newSound(Gdx.files.internal("audio/hit.mp3"));
         deathSound = Gdx.audio.newSound(Gdx.files.internal("audio/death.wav"));
         awakeSound = Gdx.audio.newSound(Gdx.files.internal("audio/awake.wav"));
         fallSound = Gdx.audio.newSound(Gdx.files.internal("audio/fall.wav"));
+        pickUpSound = Gdx.audio.newSound(Gdx.files.internal("audio/pickup.wav"));
     }
 
     @Override
@@ -157,6 +163,7 @@ public class Main extends ApplicationAdapter {
         deathSound.dispose();
         awakeSound.dispose();
         fallSound.dispose();
+        pickUpSound.dispose();
     }
 
     @Override
@@ -242,5 +249,15 @@ public class Main extends ApplicationAdapter {
     public static void removeEnemy(int index) {
         enemies[index] = null;
         enemyCount--;
+    }
+
+    public static void spawnItem(float x, float y, int type) {
+        items[itemCount] = new Item(x, y, type, itemTexture, itemCount);
+        itemCount++;
+    }
+
+    public static void removeItem(int index) {
+        items[index] = null;
+        itemCount--;
     }
 }

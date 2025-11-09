@@ -149,6 +149,7 @@ public class Enemy extends LivingThing {
         }
     }
 
+    @Override
     public void kill() {
         texture.dispose();
         Main.deathSound.play();
