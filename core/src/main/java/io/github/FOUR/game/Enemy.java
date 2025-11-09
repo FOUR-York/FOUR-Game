@@ -7,6 +7,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+/**
+ * the enemy class handles an individual enemy
+ * used for: enemy AI, handling enemy health, drawing them.
+ */
 public class Enemy extends LivingThing {
     private float range;
     public int index;
@@ -130,6 +134,7 @@ public class Enemy extends LivingThing {
                 }
             }
 
+            //hit effect
             if (beingHit) {
                 hitTime += delta;
                 sprite.setColor(Color.RED);
@@ -187,8 +192,9 @@ public class Enemy extends LivingThing {
     }
 
     /**
+     * moves towards the player and tries to attack if close enough
      *
-     * @param player
+     * @param player the player to chase
      */
     private void chase(Player player) {
         chasing = true;
@@ -217,6 +223,11 @@ public class Enemy extends LivingThing {
         chasing = false;
     }
 
+    /**
+     * tries to attack the player and deals damage if in range
+     *
+     * @param player the player to be attacked
+     */
     private void swing(Player player) {
         float delta = Gdx.graphics.getDeltaTime();
         float dist = (float) Math.sqrt(Math.pow(player.x - x, 2) + Math.pow(player.y - y, 2));
@@ -309,6 +320,11 @@ public class Enemy extends LivingThing {
         }
     }
 
+    /**
+     * moves around randomly in the set range
+     *
+     * @param range the range to move around
+     */
     private void patrol(float range) {
         float delta = Gdx.graphics.getDeltaTime();
 

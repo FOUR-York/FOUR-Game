@@ -215,6 +215,7 @@ public class Player extends LivingThing {
                 }
             }
 
+            //hit effect
             if (beingHit) {
                 hitTime += delta;
                 sprite.setColor(Color.RED);
@@ -353,6 +354,11 @@ public class Player extends LivingThing {
         return new float[] {9999999, 9999999};
     }
 
+    /**
+     * finds the nearest enemy
+     *
+     * @return the nearest enemy
+     */
     private Enemy findNearestEnemy() {
         float minDist = 9999999;
         Enemy nearest = null;
@@ -368,6 +374,11 @@ public class Player extends LivingThing {
         return nearest;
     }
 
+    /**
+     * does damage to the player and sets up states for the hit effect.
+     *
+     * @param damage the amount of damage to be done. can be negative for a weird healing thing if you want
+     */
     @Override
     public void damage(int damage) {
         super.damage(damage);
@@ -376,6 +387,13 @@ public class Player extends LivingThing {
         Main.hitSound.play();
     }
 
+    /**
+     * draws the players HP as a UI on the screen
+     *
+     * @param drawer the UI drawer. defined in main
+     * @param batch the UI batch. defined in main
+     * @param border the border texture.
+     */
     public void drawUI(ShapeDrawer drawer, SpriteBatch batch, Texture border) {
         batch.draw(border, 0, 0);
 

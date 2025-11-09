@@ -16,6 +16,7 @@ import java.util.Random;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
+    //the screen size. make sure to change it in lwjgl3 too
     public static final int WORLD_WIDTH = 640, WORLD_HEIGHT = 360;
 
     private static boolean ended = false, won = false, lost = false;
@@ -123,10 +124,16 @@ public class Main extends ApplicationAdapter {
         }
     }
 
+    /**
+     * handles player input
+     */
     public void input() {
         player.move();
     }
 
+    /**
+     * handles everything not drawing or input related
+     */
     public void logic() {
         updateCamera();
         for (Enemy enemy : enemies) {
@@ -142,6 +149,9 @@ public class Main extends ApplicationAdapter {
         player.collision();
     }
 
+    /**
+     * handles drawing
+     */
     public void draw() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -196,6 +206,9 @@ public class Main extends ApplicationAdapter {
         lost = true;
     }
 
+    /**
+     * draws walls and handles special tiles
+     */
     private void drawMapW2D() {
         int x, y, xo, yo;
         for(y = 0; y < mapY; y++) {
@@ -215,6 +228,9 @@ public class Main extends ApplicationAdapter {
         }
     }
 
+    /**
+     * draws floor tiles
+     */
     private void drawMapF2D() {
         int x, y, xo, yo;
         for(y = 0; y < mapY; y++) {
@@ -228,12 +244,17 @@ public class Main extends ApplicationAdapter {
         }
     }
 
-
+    /**
+     * makes the camera follow the player
+     */
     private void updateCamera() {
         camera.position.set(player.x, player.y, 0);
         camera.update();
     }
 
+    /**
+     * sets up both the shape drawers
+     */
     private void initialiseShapeDrawers() {
         Pixmap drawerPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         drawerPixmap.setColor(Color.WHITE);
@@ -245,6 +266,13 @@ public class Main extends ApplicationAdapter {
         UIdrawer = new ShapeDrawer(UIbatch, drawerRegion);
     }
 
+    /**
+     * searches mapW until it finds the player spawn so it can assign it
+     *
+     * @return the coordinates of the spawn point
+     *
+     * @throws NoPlayerSpawnException when there's no spawn point on the map
+     */
     private float[] findPlayerSpawn() {
         int x, y;
         for (y = 0; y < mapY; y++) {
@@ -257,20 +285,43 @@ public class Main extends ApplicationAdapter {
         throw new NoPlayerSpawnException("No player spawn found");
     }
 
+    /**
+     * spawns a new enemy at x, y
+     *
+     * @param x the x coordinate for it to spawn
+     * @param y the y coordinate for it to spawn
+     */
     public static void spawnEnemy(float x, float y) {
         enemies[enemyCount] = new Enemy(x, y, 50, 100, 5, 160, enemyTexture, enemyCount);
         enemyCount++;
     }
 
+    /**
+     * deletes the specified enemy
+     *
+     * @param index the index of the enemy that needs to be deleted
+     */
     public static void removeEnemy(int index) {
         enemies[index] = null;
     }
 
+    /**
+     * spawns a new item of type, at x, y
+     *
+     * @param x the x coord
+     * @param y the y coord
+     * @param type the type of item. see Item class for the key
+     */
     public static void spawnItem(float x, float y, int type) {
         items[itemCount] = new Item(x, y, type, itemTexture, itemCount);
         itemCount++;
     }
 
+    /**
+     * deletes the specified item
+     *
+     * @param index the index of the item to be deleted
+     */
     public static void removeItem(int index) {
         items[index] = null;
     }
