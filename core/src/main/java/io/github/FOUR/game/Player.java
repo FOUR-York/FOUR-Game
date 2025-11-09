@@ -317,18 +317,29 @@ public class Player extends LivingThing {
      * @param fov the fov of the player (so the amount of rays)
      */
     public void drawFOV(ShapeDrawer drawer, int fov) {
-        for (int r = 0; r < fov; r++) {
+        int rays = 360*2;
+        for (int r = 0; r < rays; r++) {
             float maxDist = 640;
 
-            float angle = (float) Math.toRadians(r);
+            float angle = (float) Math.toRadians((float)r*((float)fov/(float)rays));
             float[] startPos = rayToNearestWall(angle, maxDist);
             float dist = (float) Math.sqrt(Math.pow(startPos[0] - x, 2) + Math.pow(startPos[1] - y, 2));
 
             if (dist <= maxDist) {
-                float[] endPos = new float[] {startPos[0] + ((float) (Math.cos(angle) * maxDist)), startPos[1] + ((float) (Math.sin(angle) * maxDist))};
+                float tDist = 10f;
+                float delta = 1f;
+                float lineWidth = 3.5f;
+                float theta = (float) Math.atan((lineWidth/2f)/(float)tDist);
+                // triangle
+                float[] endPos = new float[] {startPos[0] + ((float) (Math.cos(angle+theta) * tDist)), startPos[1] + ((float) (Math.sin(angle+theta) * tDist))};
+                float[] endPos2 = new float[] {startPos[0] + ((float) (Math.cos(angle-theta) * tDist)), startPos[1] + ((float) (Math.sin(angle-theta) * tDist))};
+                // line
+                float[] startPos2 = new float[] {startPos[0] + ((float) (Math.cos(angle) * (tDist-delta))), startPos[1] + ((float) (Math.sin(angle) * (tDist-delta)))};
+                float[] endPos3 = new float[] {startPos[0] + ((float) (Math.cos(angle) * maxDist)), startPos[1] + ((float) (Math.sin(angle) * maxDist))};
 
                 drawer.setColor(0f, 0f, 0f, 1f);
-                drawer.line(startPos[0], startPos[1], endPos[0], endPos[1], 7f);
+                drawer.filledTriangle(startPos[0], startPos[1], endPos[0], endPos[1], endPos2[0], endPos2[1]);
+                drawer.line(startPos2[0], startPos2[1], endPos3[0], endPos3[1], lineWidth);
             }
         }
     }
