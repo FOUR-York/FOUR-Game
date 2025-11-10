@@ -10,6 +10,8 @@ import java.util.Random;
 // -2 = win space tbi
 // -3 = damage tick tile
 // -4 = enemy tile
+// -5 = room change tile
+// -6 = long boi tile
 
 //>0 = solid
 //<=0 = no collision
@@ -25,14 +27,17 @@ public class ProcGen {
         roomX = 10;
         roomY = 5;
         map  = new int[roomX*roomY*blockSize*blockSize];
+        floor  = new int[roomX*roomY*blockSize*blockSize];
         Arrays.fill(map,0);
+        Arrays.fill(floor,0);
         // copy rooms into map
         for (int i = 0; i < roomX; i++) {
             for (int j = 0; j < roomY; j++) {
-                int[] room = genRoom();
+                int[][] room = genRoom();
                 for (int x = 0; x < blockSize; x++) {
                     for (int y = 0; y < blockSize; y++) {
-                        map[cellToMap(i * blockSize + x, j * blockSize + y)] = room[x + y * blockSize];
+                        map[cellToMap(i * blockSize + x, j * blockSize + y)] = room[0][x + y * blockSize];
+                        floor[cellToMap(i * blockSize + x, j * blockSize + y)] = room[1][x + y * blockSize];
                     }
                 }
             }
@@ -41,7 +46,7 @@ public class ProcGen {
         RecursiveBacktracker r = new RecursiveBacktracker(roomX, roomY, random);
         for (int i = 0; i < roomX; i++) {
             for (int j = 0; j < roomY; j++) {
-                int roomPath = r.grid[r.gridToCell(i, j)];
+                int roomPath = r.grid[r.cellToGrid(i, j)];
 
                 int x = i*blockSize,  y = j*blockSize;
                 int tunnelWidth = random.nextInt(2)+1;
@@ -67,7 +72,7 @@ public class ProcGen {
             }
         }
         // make spawn
-        int spawnX = random.nextInt(roomX), spawnY = random.nextInt(roomY);
+        int spawnX = r.startX, spawnY = r.startY;
         boolean found = false;
         for (int x = 0;  x < blockSize; x++) {
             for (int y = 0; y < blockSize; y++) {
@@ -81,27 +86,62 @@ public class ProcGen {
         }
 
         // corridors
+
+        // place win space
+        int endX = r.endX, endY = r.endY;
+        found = false;
+        for (int x = 0;  x < blockSize; x++) {
+            for (int y = 0; y < blockSize; y++) {
+                int index = cellToMap(endX*blockSize+x, endY*blockSize+y);
+                if (map[cellToMap(endX*blockSize+x, endY*blockSize+y)] == 0) {
+                    map[cellToMap(endX * blockSize + x, endY * blockSize + y)] = -2;
+                    floor[cellToMap(endX * blockSize + x, endY * blockSize + y)] = 4;
+                    found = true;
+                    break;
+                }
+            }
+            if (found) break;
+        }
     }
-    public int[] genRoom() {
+
+    /**
+     *
+    * generates a room and floor map in blockSize coordinate space
+    * to be copied into the main map
+     * long boi has a low chance of appearing
+     @return
+     */
+    public int[][] genRoom() {
         // declare map
         // generate
         int[] room = new int[blockSize*blockSize];
+        int[] floor = new int[blockSize*blockSize];
         Arrays.fill(room, 1);
+        Arrays.fill(floor, 1);
         for (int i = 1; i < blockSize-1; i++) {
             for (int j = 1; j < blockSize-1; j++) {
-
                 room[i + j*(blockSize)] = 0;
                 if (random.nextInt(20) == 0) {
                     room[i+j*(blockSize)] = 1;
                 }
-                if (random.nextInt(100) == 0) {
+                else if (random.nextInt(100) == 0) {
                     room[i+j*(blockSize)] = -4;
+                } else if (random.nextInt(1000) == 0) {
+                    room[i+j*(blockSize)] = -6;
                 }
             }
         }
-        return room;
+        return new int[][]{room, floor};
     }
 
+    /**
+    * clears a rectangular space of walls on the map
+     @param sX bottom left x coord
+     @param sY bottom left y coord
+     @param x width
+     @param y height
+     @return
+     */
     public void makeEmptyRect(int sX, int sY, int x, int y) {
         for  (int i = sX; i < sX+x; i++) {
             for(int j = sY; j < sY+y; j++) {
@@ -110,15 +150,12 @@ public class ProcGen {
         }
     }
 
-    public void display() {
-        for (int y = roomY*blockSize-1; y > -1; y--) {
-            for (int x = 0; x < roomX*blockSize; x++) {
-                System.out.print(map[x+y*blockSize*roomX] + ",");
-            }
-            System.out.print("\n");
-        }
-    }
-
+    /**
+     * takes two grid coords and returns a corresponding map array index
+     * @param x
+     * @param y
+     * @return index
+     */
     public int cellToMap(int x, int y) {
         return x+y*roomX*blockSize;
     }
@@ -127,6 +164,8 @@ public class ProcGen {
 class RecursiveBacktracker {
     int[] grid;
     int dimensionsX, dimensionsY;
+    int startX, startY;
+    int endX, endY;
     Random random;
 
     public RecursiveBacktracker(int dimensionsX, int dimensionsY, Random random) {
@@ -138,8 +177,13 @@ class RecursiveBacktracker {
         branch(random.nextInt(dimensionsX), random.nextInt(dimensionsY));
     }
 
+    /**
+     * main recursive logic
+     * @param x
+     * @param y
+     */
     void branch(int x, int y) {
-        grid[gridToCell(x, y)] = 0;
+        grid[cellToGrid(x, y)] = 0;
         int mask = 0;
 
         for (int i = 0; i < 4; i++) {
@@ -160,19 +204,24 @@ class RecursiveBacktracker {
             }
 
             if (nextX < 0 || nextY < 0 || nextX >= dimensionsX || nextY >= dimensionsY) continue;
-            if (grid[gridToCell(nextX, nextY)] != -1) continue;
+            if (grid[cellToGrid(nextX, nextY)] != -1) continue;
 
-            grid[gridToCell(x, y)] |= dir;
+            grid[cellToGrid(x, y)] |= dir;
+
+            endX = nextX;
+            endY = nextY;
 
             branch(nextX, nextY);
         }
     }
 
-    public int[] getGrid() {
-        return grid;
-    }
-
-    int gridToCell(int x, int y) {
+    /**
+     * returns the corresponding grid index given cell coords
+     * @param x
+     * @param y
+     * @return index
+     */
+    int cellToGrid(int x, int y) {
         return x + y * dimensionsX;
     }
 }

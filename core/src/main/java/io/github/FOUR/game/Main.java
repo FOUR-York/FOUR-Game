@@ -54,6 +54,10 @@ public class Main extends ApplicationAdapter {
     public static Item[] items = new Item[1000];
     public static int itemCount = 0;
 
+    public static Furniture[] furniture = new Furniture[1000];
+    public static int furnitureCount = 0;
+    public static Texture[] furnitureTextures;
+
     public static int nextArea = 0;
 
     public static int chaseCount = 0;
@@ -77,6 +81,8 @@ public class Main extends ApplicationAdapter {
         enemyTexture = new Texture(Gdx.files.internal("textures/enemy.png"));
 
         loadFloorTextures();
+
+        loadFurnitureTextures();
 
         itemTexture = new Texture(Gdx.files.internal("textures/item.png"));
 
@@ -110,6 +116,45 @@ public class Main extends ApplicationAdapter {
         areaStart();
     }
 
+    /**
+     * helper function to load furniture textures
+     */
+    public void loadFurnitureTextures() {
+        String[] textureNames = new String[] {
+            "bench1",
+            "bench2",
+            "book",
+            "chair",
+            "lampost",
+            "longboi",
+            "screen1_1",
+            "screen1",
+            "screen2_1",
+            "screen2",
+            "screen3_1",
+            "screen3",
+            "shelf1",
+            "shelf2",
+            "shelf3",
+            "tablecorner",
+            "tableedge",
+            "torch",
+        };
+        furnitureTextures = new Texture[textureNames.length];
+        for (int i = 0; i < textureNames.length; i++) {
+            furnitureTextures[i] = new Texture("textures/furniture/"+textureNames[i]+".png");
+        }
+    }
+
+    public static void spawnFurniture(int texId, int dir, float x, float y) {
+        Furniture f = new Furniture(furnitureTextures[texId], dir, mapS, x, y);
+        furniture[furnitureCount] = f;
+        furnitureCount++;
+    }
+
+    /**
+     * helper function to load floor textures
+     */
     public void loadFloorTextures() {
         String[] textureNames = new String[] {
            "floortiles",
@@ -145,6 +190,9 @@ public class Main extends ApplicationAdapter {
         }
     }
 
+    /**
+     * start and initialise new area according to nextArea
+     */
     public void areaStart() {
         switch(nextArea) {
             case 0:
@@ -158,15 +206,14 @@ public class Main extends ApplicationAdapter {
         float[] playerSpawn = findPlayerSpawn();
         player = new Player(playerSpawn[0], playerSpawn[1], 100f, 100, 10, playerTexture);
 
-        int x, y, xo, yo;
-        for(y = 0; y < mapY; y++) {
-            for(x = 0; x < mapX; x++) {
-                xo = x * mapS;
-                yo = (mapY*mapS)-((y+1) * mapS);
+        for(int y = 0; y < mapY; y++) {
+            for(int x = 0; x < mapX; x++) {
                 switch (mapW[y][x]) {
                     case -4:
                         spawnEnemy((x*mapS)+((float)mapS/2), (mapY*mapS)-(((y)*mapS)+((float)mapS/2)));
                         break;
+                    case -6:
+                        spawnFurniture(5, 0, (x*mapS)+((float)mapS/2), (mapY*mapS)-(((y)*mapS)+((float)mapS/2)));
                 }
             }
         }
@@ -175,12 +222,23 @@ public class Main extends ApplicationAdapter {
         loading = false;
     }
 
+    /**
+     * cleanup finished area
+     */
     public static void endArea() {
         music1.stop();
         Arrays.fill(enemies, null);
+        Arrays.fill(items, null);
+        Arrays.fill(furniture, null);
         enemyCount = 0;
+        itemCount = 0;
+        furnitureCount = 0;
     }
 
+    /**
+     * called when a zone change tile is touched by the player
+     * @param tile
+     */
     public static void changeZoneFromTile(int tile) {
         endArea();
         loading = true;
@@ -191,6 +249,13 @@ public class Main extends ApplicationAdapter {
         }
     }
 
+    public void office() {
+
+    }
+
+    /**
+     * generates central hall
+     */
     public void centralHall() {
         mapW = new int[][] {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -230,6 +295,10 @@ public class Main extends ApplicationAdapter {
     }
 
 
+    /**
+     * generate a procedural map and input the data
+     * @param seed
+     */
     public void beginMap(long seed) {
 
         // generate map
@@ -242,9 +311,9 @@ public class Main extends ApplicationAdapter {
         mapY = p.roomY*p.blockSize;
         mapW = new int[mapY][mapX];
         mapF = new int[mapY][mapX];
-        for (int i = 0; i < mapY; i++) {
-            for (int j = 0; j < mapX; j++) {
-                mapF[i][j] = 1;
+        for (int i = 0; i < mapX; i++) {
+            for (int j = 0; j < mapY; j++) {
+                mapF[j][i] = p.floor[p.cellToMap(i, j)];
             }
         }
         for  (int i = 0; i < mapX; i++) {
@@ -255,6 +324,9 @@ public class Main extends ApplicationAdapter {
     }
 
 
+    /**
+     *
+     */
     @Override
     public void render() {
         if (!ended) {
@@ -324,6 +396,11 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         drawMapF2D();
         drawMapW2D();
+        for (Furniture f : furniture) {
+           if (f != null) {
+               f.draw(batch);
+           }
+        }
         for (Enemy enemy : enemies) {
             if (enemy != null) {
                 enemy.draw(batch);
@@ -345,6 +422,10 @@ public class Main extends ApplicationAdapter {
         font.draw(UIbatch, scoreStr, 10, WORLD_HEIGHT - 30);
         UIbatch.end();
     }
+
+    /**
+     * draws the screen shader overlay
+     */
     public void drawScreenShader () {
 
         shaderTime+=Gdx.graphics.getDeltaTime();
@@ -374,6 +455,9 @@ public class Main extends ApplicationAdapter {
         drawerTexture.dispose();
         enemyTexture.dispose();
         for (Texture tex : floorTextures) {
+            tex.dispose();
+        }
+        for (Texture tex : furnitureTextures) {
             tex.dispose();
         }
         hpTexture.dispose();
@@ -527,5 +611,13 @@ public class Main extends ApplicationAdapter {
      */
     public static void removeItem(int index) {
         items[index] = null;
+    }
+
+    /**
+     * deletes the specified furniture
+     * @param index
+     */
+    public static void removeFurniture(int index) {
+        furniture[index] = null;
     }
 }
