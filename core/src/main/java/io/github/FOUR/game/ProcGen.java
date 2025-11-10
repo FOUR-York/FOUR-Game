@@ -24,8 +24,8 @@ public class ProcGen {
     public ProcGen(Random random) {
         this.random = random;
         // rooms
-        roomX = 10;
-        roomY = 5;
+        roomX = 5;
+        roomY = 3;
         map  = new int[roomX*roomY*blockSize*blockSize];
         floor  = new int[roomX*roomY*blockSize*blockSize];
         Arrays.fill(map,0);
