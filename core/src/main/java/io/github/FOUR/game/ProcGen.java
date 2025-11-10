@@ -93,9 +93,9 @@ public class ProcGen {
         for (int x = 0;  x < blockSize; x++) {
             for (int y = 0; y < blockSize; y++) {
                 int index = cellToMap(endX*blockSize+x, endY*blockSize+y);
-                if (map[cellToMap(endX*blockSize+x, endY*blockSize+y)] == 0) {
-                    map[cellToMap(endX * blockSize + x, endY * blockSize + y)] = -2;
-                    floor[cellToMap(endX * blockSize + x, endY * blockSize + y)] = 4;
+                if (map[index] == 0) {
+                    map[index] = -2;
+                    floor[index] = 4;
                     found = true;
                     break;
                 }
@@ -121,7 +121,7 @@ public class ProcGen {
         for (int i = 1; i < blockSize-1; i++) {
             for (int j = 1; j < blockSize-1; j++) {
                 room[i + j*(blockSize)] = 0;
-                if (random.nextInt(20) == 0) {
+                if (random.nextInt(30) == 0 && i > 2 &&  i < blockSize-2 && j > 2 && j < blockSize-2) {
                     room[i+j*(blockSize)] = 1;
                 }
                 else if (random.nextInt(100) == 0) {

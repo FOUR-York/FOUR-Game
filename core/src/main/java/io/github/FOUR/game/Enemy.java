@@ -358,7 +358,7 @@ public class Enemy extends LivingThing {
         float dx = (float) (Math.cos(angle) * speed * delta);
         float dy = (float) (Math.sin(angle) * speed * delta);
 
-        if (Main.mapW[(int) ((mapHeight-y-dy)/32)][(int) (x+dx)/32] <= 0) {
+        if (Main.mapWSafe((int) (x+dx)/32, (int) ((mapHeight-y-dy)/32)) <= 0) {
             x += dx;
             y += dy;
         }

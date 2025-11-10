@@ -117,6 +117,20 @@ public class Main extends ApplicationAdapter {
     }
 
     /**
+     * get mapW cell with inbuilt bounds check
+     * @param x
+     * @param y
+     * @return
+     */
+    public static int mapWSafe(int x, int y) {
+        if (x < 0 || x > mapX || y < 0 || y > mapY) {
+            return -1;
+        } else {
+            return mapW[y][x];
+        }
+    }
+
+    /**
      * helper function to load furniture textures
      */
     public void loadFurnitureTextures() {

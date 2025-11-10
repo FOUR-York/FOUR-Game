@@ -63,7 +63,7 @@ public class Player extends LivingThing {
         if (!dead) {
             if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
                 // collision with walls
-                if (Main.mapW[(int) ((mapHeight-(y+16))/32)][(int) x/32] <= 0) {y += speed * delta;}
+                if (Main.mapWSafe((int) x/32,(int) ((mapHeight-(y+16))/32)) <= 0) {y += speed * delta;}
 
                 //animation
                 TextureRegion frame = walkUp.getKeyFrame(stateTime, true);
@@ -79,7 +79,7 @@ public class Player extends LivingThing {
                 //the other three directions are the same pretty much
             }
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-                if (Main.mapW[(int) ((mapHeight-(y-16))/32)][(int) x/32] <= 0) {y -= speed * delta;}
+                if (Main.mapWSafe((int) x/32,(int) ((mapHeight-(y-16))/32)) <= 0) {y -= speed * delta;}
 
                 TextureRegion frame = walkDown.getKeyFrame(stateTime, true);
                 sprite.setRegion(frame);
@@ -91,7 +91,7 @@ public class Player extends LivingThing {
                 left = false;
             }
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                if (Main.mapW[(int) ((mapHeight-y)/32)][(int) (x+16)/32] <= 0) {x += speed * delta;}
+                if (Main.mapWSafe((int) (x+16)/32,(int) ((mapHeight-y)/32)) <= 0) {x += speed * delta;}
 
                 TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
                 sprite.setRegion(frame);
@@ -103,7 +103,7 @@ public class Player extends LivingThing {
                 down = false;
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                if (Main.mapW[(int) ((mapHeight-y)/32)][(int) (x-16)/32] <= 0) {x -= speed * delta;}
+                if (Main.mapWSafe((int) (x-16)/32,(int) ((mapHeight-y)/32)) <= 0) {x -= speed * delta;}
 
                 TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
                 sprite.setRegion(frame);
@@ -365,7 +365,7 @@ public class Player extends LivingThing {
             rx += (float) (Math.cos(angle) * 4);
             ry += (float) (Math.sin(angle) * 4);
 
-            if (Main.mapW[(int) ((mapHeight - (ry)) / 32)][(int) rx / 32] == 1) {
+            if (Main.mapWSafe((int) rx / 32,(int) ((mapHeight - (ry)) / 32)) == 1) {
                 return new float[] { rx, ry };
             }
         }
