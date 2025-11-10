@@ -56,6 +56,8 @@ public class Main extends ApplicationAdapter {
 
     public static int nextArea = 0;
 
+    public static int chaseCount = 0;
+
     public Random random;
 
     @Override
@@ -200,7 +202,7 @@ public class Main extends ApplicationAdapter {
             {1, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 1},
             {1, 2, 2, 2, 2, 2, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 1},
             {1, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 1},
-            {1, 2, 2, 2, 2, 2, 0, 0, 0, -4, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 1},
+            {1, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 1},
             {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1},
             {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1},
             {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, -5, -5, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1},
@@ -350,12 +352,13 @@ public class Main extends ApplicationAdapter {
         Scbatch.begin();
 
         // pass in the following to the fragment glsl scripts
+        float speed = (float) Math.log(chaseCount+1)+1f;
         Vector2 v = new Vector2(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
         v.x = v.x / Gdx.graphics.getWidth();
         v.y = v.y / Gdx.graphics.getHeight();
         shaderProgram.setUniformf("center", v);
         shaderProgram.setUniformf("u_time", shaderTime);
-        shaderProgram.setUniformf("u_speed", 1f);
+        shaderProgram.setUniformf("u_speed", speed);
         shaderProgram.setUniformf("u_resolution", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         Scbatch.draw(shaderSpace, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

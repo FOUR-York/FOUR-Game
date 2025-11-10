@@ -89,7 +89,14 @@ public class ProcGen {
         Arrays.fill(room, 1);
         for (int i = 1; i < blockSize-1; i++) {
             for (int j = 1; j < blockSize-1; j++) {
+
                 room[i + j*(blockSize)] = 0;
+                if (random.nextInt(20) == 0) {
+                    room[i+j*(blockSize)] = 1;
+                }
+                if (random.nextInt(100) == 0) {
+                    room[i+j*(blockSize)] = -4;
+                }
             }
         }
         return room;

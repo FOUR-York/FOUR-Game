@@ -77,6 +77,10 @@ public class Enemy extends LivingThing {
             }
             else {
                 //if not, patrol
+                if (chasing) {
+                    chasing = false;
+                    Main.chaseCount -= 1;
+                }
                 patrol(range);
             }
             //set the sprite pos and offset it to be centered
@@ -199,7 +203,10 @@ public class Enemy extends LivingThing {
      * @param player the player to chase
      */
     private void chase(Player player) {
-        chasing = true;
+        if (!chasing) {
+            chasing = true;
+            Main.chaseCount += 1;
+        }
 
         float delta = Gdx.graphics.getDeltaTime();
         int mapHeight = (Main.mapS * Main.mapY);
@@ -222,7 +229,6 @@ public class Enemy extends LivingThing {
             }
         }
 
-        chasing = false;
     }
 
     /**
