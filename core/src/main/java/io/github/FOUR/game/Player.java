@@ -282,6 +282,9 @@ public class Player extends LivingThing {
                     damage(5);
                 }
                 break;
+            case -5:
+                Main.changeZoneFromTile(Main.mapF[(int) ((mapHeight - (y)) / 32)][(int) x / 32]);
+                break;
         }
 
         if (collisionTime > 1f) {

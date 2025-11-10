@@ -3,8 +3,19 @@ package io.github.FOUR.game;
 import java.util.Arrays;
 import java.util.Random;
 
+//Map key:
+//1 = basic wall
+//0 = empty
+//-1 = player spawn
+// -2 = win space tbi
+// -3 = damage tick tile
+// -4 = enemy tile
+
+//>0 = solid
+//<=0 = no collision
 public class ProcGen {
     public int[] map;
+    public int[] floor;
     public int blockSize = 10;
     public int roomX, roomY;
     Random random;
@@ -33,24 +44,25 @@ public class ProcGen {
                 int roomPath = r.grid[r.gridToCell(i, j)];
 
                 int x = i*blockSize,  y = j*blockSize;
-                int midBlock = random.nextInt(blockSize-2)+1;
+                int tunnelWidth = random.nextInt(2)+1;
+                int midBlock = random.nextInt(blockSize-tunnelWidth-1)+tunnelWidth;
                 // bitmask for dir
                 if ((roomPath & 1) == 1) {
                    // path up
                     // make path starting halfway through room width 3
-                    makeEmptyRect(x+midBlock, y+midBlock, 1, blockSize);
+                    makeEmptyRect(x+midBlock, y+midBlock, tunnelWidth, blockSize);
                 }
                 if ((roomPath & 2) == 2) {
                     // path left
-                    makeEmptyRect(x+midBlock-blockSize, y+midBlock, blockSize, 1);
+                    makeEmptyRect(x+midBlock-blockSize, y+midBlock, blockSize, tunnelWidth);
                 }
                 if ((roomPath & 4) == 4) {
                     // path down
-                    makeEmptyRect(x+midBlock, y+midBlock-blockSize, 1, blockSize);
+                    makeEmptyRect(x+midBlock, y+midBlock-blockSize, tunnelWidth, blockSize);
                 }
                 if ((roomPath & 8) == 8) {
                     // path right
-                    makeEmptyRect(x+midBlock, y+midBlock, blockSize, 1);
+                    makeEmptyRect(x+midBlock, y+midBlock, blockSize, tunnelWidth);
                 }
             }
         }
