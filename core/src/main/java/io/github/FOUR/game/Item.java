@@ -42,15 +42,19 @@ public class Item extends Entity{
             }
             kill();
         }
+
+        sprite.setPosition(x-16, y-16);
     }
 
     private void healPlayer(int amount) {
         Main.player.hp += amount;
+        if (Main.player.hp > 100) {
+            Main.player.hp = 100;
+        }
     }
 
     @Override
     public void kill() {
-        texture.dispose();
         Main.removeItem(index);
     }
 }

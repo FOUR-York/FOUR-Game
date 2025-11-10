@@ -214,18 +214,6 @@ public class Player extends LivingThing {
                     }
                 }
             }
-
-            //hit effect
-            if (beingHit) {
-                hitTime += delta;
-                sprite.setColor(Color.RED);
-                if (hitTime > 0.5f) {
-                    beingHit = false;
-                }
-            }
-            else {
-                sprite.setColor(Color.WHITE);
-            }
         }
         else {
             //if downed set all states to false except down
@@ -247,7 +235,7 @@ public class Player extends LivingThing {
                 sprite.setRegion(fallFrames[1]);
                 sprite.flip(false, false);
             }
-            if (hp >= 10) {
+            if (hp >= 20) {
                 //get back up when health reaches 10
                 stateTime = 0f;
                 dead = false;
@@ -257,6 +245,18 @@ public class Player extends LivingThing {
                 sprite.setRegion(walkDownFrames[0]);
                 sprite.flip(false, false);
             }
+        }
+
+        //hit effect
+        if (beingHit) {
+            hitTime += delta;
+            sprite.setColor(Color.RED);
+            if (hitTime > 0.5f) {
+                beingHit = false;
+            }
+        }
+        else {
+            sprite.setColor(Color.WHITE);
         }
 
         if (stateTime > 300f) {
@@ -289,7 +289,7 @@ public class Player extends LivingThing {
 
         if (collisionTime > 1f) {
             if (hp < 100 && dead) {
-                hp++;
+                hp += 2;
             }
 
             Main.time--;

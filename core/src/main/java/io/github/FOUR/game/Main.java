@@ -313,6 +313,9 @@ public class Main extends ApplicationAdapter {
             }
         }
         player.collision();
+        if (score < 0) {
+            score = 0;
+        }
     }
 
     /**
@@ -327,6 +330,11 @@ public class Main extends ApplicationAdapter {
         for (Enemy enemy : enemies) {
             if (enemy != null) {
                 enemy.draw(batch);
+            }
+        }
+        for (Item item : items) {
+            if (item != null) {
+                item.draw(batch);
             }
         }
         player.draw(batch);
@@ -495,7 +503,7 @@ public class Main extends ApplicationAdapter {
      * @param y the y coordinate for it to spawn
      */
     public static void spawnEnemy(float x, float y) {
-        enemies[enemyCount] = new Enemy(x, y, 50, 100, 5, 160, enemyTexture, enemyCount);
+        enemies[enemyCount] = new Enemy(x, y, 50, 25, 5, 160, enemyTexture, enemyCount);
         enemyCount++;
     }
 
