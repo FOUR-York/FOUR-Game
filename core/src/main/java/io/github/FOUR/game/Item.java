@@ -9,6 +9,7 @@ public class Item extends Entity{
     /*
     key:
     1 = healing pickup
+    2 = torch
      */
     public int type, index;
 

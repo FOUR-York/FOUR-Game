@@ -87,6 +87,7 @@ public class ProcGen {
 
         // corridors
 
+
         // place win space
         int endX = r.endX, endY = r.endY;
         found = false;

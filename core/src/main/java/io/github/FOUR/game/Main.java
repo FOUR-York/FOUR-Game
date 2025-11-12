@@ -108,6 +108,9 @@ public class Main extends ApplicationAdapter {
         String vertexShader = Gdx.files.internal("shaders/vertex.glsl").readString();
         String fragmentShader = Gdx.files.internal("shaders/fragment.glsl").readString();
         shaderProgram = new ShaderProgram(vertexShader,fragmentShader);
+        if (!shaderProgram.isCompiled()) {
+            System.out.print(shaderProgram.getLog());
+        }
         shaderProgram.pedantic = false;
 
         Scbatch.setShader(shaderProgram);
@@ -260,6 +263,10 @@ public class Main extends ApplicationAdapter {
         switch(tile>>2) {
             case 8:
                 nextArea = 1;
+                break;
+            case 12:
+                nextArea = 2;
+                break;
         }
     }
 
