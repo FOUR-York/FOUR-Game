@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
@@ -62,7 +63,7 @@ public class Main extends ApplicationAdapter {
 
     public static int chaseCount = 0;
 
-    public Random random;
+    public static Random random;
 
     @Override
     public void create() {
@@ -116,6 +117,8 @@ public class Main extends ApplicationAdapter {
         Scbatch.setShader(shaderProgram);
         shaderTime = 0;
 
+        random = new Random();
+
         areaStart();
     }
 
@@ -126,7 +129,7 @@ public class Main extends ApplicationAdapter {
      * @return
      */
     public static int mapWSafe(int x, int y) {
-        if (x < 0 || x > mapX || y < 0 || y > mapY) {
+        if (x < 0 || x >= mapX || y < 0 || y >= mapY) {
             return -1;
         } else {
             return mapW[y][x];
@@ -323,9 +326,8 @@ public class Main extends ApplicationAdapter {
     public void beginMap(long seed) {
 
         // generate map
-        random = new Random();
         random.setSeed(seed);
-        ProcGen p = new ProcGen(random);
+        ProcGen p = new ProcGen();
         // copy p.map to mapW
         // need to go backwards...
         mapX = p.roomX*p.blockSize;
@@ -648,5 +650,18 @@ public class Main extends ApplicationAdapter {
      */
     public static void removeFurniture(int index) {
         furniture[index] = null;
+    }
+
+    /**
+     * Fisher–Yates shuffle helper function
+     */
+    public static int[] shuffle(int[] array) {
+        for (int i = array.length-1; i > 0; i--) {
+            int index = random.nextInt(i+1);
+            int tmp = array[i];
+            array[i] = array[index];
+            array[index] = tmp;
+        }
+        return array;
     }
 }
