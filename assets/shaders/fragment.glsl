@@ -10,13 +10,13 @@ varying vec4 v_color;
 varying vec2 v_texCoords;
 uniform sampler2D u_texture;
 
-const float outerRadius = 0.4f, innerRadius = 0.1f, outerAlpha = 0.9f;
+const float outerRadius = 0.4, innerRadius = 0.1, outerAlpha = 0.9;
 
 void main() {
-    float cycle = (sin(u_speed*u_time*5.0f)/8.0f)+1.0f;
-    vec4 color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    float cycle = (sin(u_speed*u_time*5.0)/8.0)+1.0;
+    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
-	vec2 relativePosition = gl_FragCoord.xy / u_resolution - 0.5f;
+	vec2 relativePosition = gl_FragCoord.xy / u_resolution - 0.5;
 	relativePosition.x *= u_resolution.x / u_resolution.y;
 	float len = length(relativePosition);
 	color.a = outerAlpha-((smoothstep(outerRadius*cycle, innerRadius*cycle, len))*outerAlpha);
