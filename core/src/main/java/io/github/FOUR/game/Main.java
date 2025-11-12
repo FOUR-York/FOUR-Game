@@ -10,12 +10,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.util.Arrays;
 import java.util.Random;
+
+import static java.lang.Math.sin;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
@@ -28,8 +29,11 @@ public class Main extends ApplicationAdapter {
 
     private static OrthographicCamera camera;
     private static FitViewport viewport;
-    private static SpriteBatch batch, Scbatch, UIbatch;
+    private static SpriteBatch batch, scBatch, UIbatch;
     private static ShaderProgram shaderProgram;
+
+    private static float scPrevSpeed = 1.0f;
+    private static float scDelta = 0.0f;
 
     private static ShapeDrawer shapeDrawer, UIdrawer;
 
@@ -72,7 +76,7 @@ public class Main extends ApplicationAdapter {
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         batch = new SpriteBatch();
         UIbatch = new SpriteBatch();
-        Scbatch = new SpriteBatch();
+        scBatch = new SpriteBatch();
         font = new BitmapFont();
 
         initialiseShapeDrawers();
@@ -114,7 +118,7 @@ public class Main extends ApplicationAdapter {
         }
         shaderProgram.pedantic = false;
 
-        Scbatch.setShader(shaderProgram);
+        scBatch.setShader(shaderProgram);
         shaderTime = 0;
 
         random = new Random();
@@ -461,20 +465,25 @@ public class Main extends ApplicationAdapter {
 
         shaderTime+=Gdx.graphics.getDeltaTime();
 
-        Scbatch.begin();
+        scBatch.begin();
 
         // pass in the following to the fragment glsl scripts
         float speed = (float) Math.log(chaseCount+1)+1f;
+        if (speed != scPrevSpeed) {
+            scDelta = shaderTime*5.0f*(scPrevSpeed-speed) + scDelta; // adjust position in the cycle to match previous cycle
+            scPrevSpeed = speed;
+        }
+        float cycle = (float) (sin(speed*shaderTime*5.0f+ scDelta)/8.0f+1.0f);
         Vector2 v = new Vector2(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
         v.x = v.x / Gdx.graphics.getWidth();
         v.y = v.y / Gdx.graphics.getHeight();
         shaderProgram.setUniformf("center", v);
         shaderProgram.setUniformf("u_time", shaderTime);
-        shaderProgram.setUniformf("u_speed", speed);
+        shaderProgram.setUniformf("u_cycle", cycle);
         shaderProgram.setUniformf("u_resolution", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        Scbatch.draw(shaderSpace, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        Scbatch.end();
+        scBatch.draw(shaderSpace, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        scBatch.end();
     }
 
 
@@ -502,7 +511,7 @@ public class Main extends ApplicationAdapter {
         winSound.dispose();
         loseSound.dispose();
         music1.dispose();
-        Scbatch.dispose();
+        scBatch.dispose();
         shaderSpace.dispose();
         shaderProgram.dispose();
     }

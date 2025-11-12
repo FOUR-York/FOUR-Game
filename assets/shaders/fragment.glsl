@@ -4,7 +4,7 @@ precision mediump float;
 
 uniform vec2 u_resolution;
 uniform float u_time;
-uniform float u_speed;
+uniform float u_cycle;
 
 varying vec4 v_color;
 varying vec2 v_texCoords;
@@ -13,7 +13,7 @@ uniform sampler2D u_texture;
 const float outerRadius = 0.4, innerRadius = 0.1, outerAlpha = 0.9;
 
 void main() {
-    float cycle = (sin(u_speed*u_time*5.0)/8.0)+1.0;
+    float cycle = u_cycle;
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
 	vec2 relativePosition = gl_FragCoord.xy / u_resolution - 0.5;

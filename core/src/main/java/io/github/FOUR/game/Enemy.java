@@ -193,7 +193,7 @@ public class Enemy extends LivingThing {
             rx += (float) (Math.cos(angle) * 4);
             ry += (float) (Math.sin(angle) * 4);
 
-            if (Main.mapW[(int) ((mapHeight - (ry)) / 32)][(int) rx / 32] > 0) {
+            if (Main.mapWSafe((int) rx / 32, (int) ((mapHeight - (ry)) / 32)) > 0) {
                 return false;
             }
         }
