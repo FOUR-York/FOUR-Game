@@ -16,6 +16,8 @@ import space.earlygrey.shapedrawer.ShapeDrawer;
 import java.util.Arrays;
 import java.util.Random;
 
+import static java.lang.Math.sin;
+
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
     //the screen size. make sure to change it in lwjgl3 too
@@ -27,8 +29,11 @@ public class Main extends ApplicationAdapter {
 
     private static OrthographicCamera camera;
     private static FitViewport viewport;
-    private static SpriteBatch batch, Scbatch, UIbatch;
+    private static SpriteBatch batch, scBatch, UIbatch;
     private static ShaderProgram shaderProgram;
+
+    private static float scPrevSpeed = 1.0f;
+    private static float scDelta = 0.0f;
 
     private static ShapeDrawer shapeDrawer, UIdrawer;
 
@@ -62,7 +67,7 @@ public class Main extends ApplicationAdapter {
 
     public static int chaseCount = 0;
 
-    public Random random;
+    public static Random random;
 
     @Override
     public void create() {
@@ -71,7 +76,7 @@ public class Main extends ApplicationAdapter {
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         batch = new SpriteBatch();
         UIbatch = new SpriteBatch();
-        Scbatch = new SpriteBatch();
+        scBatch = new SpriteBatch();
         font = new BitmapFont();
 
         initialiseShapeDrawers();
@@ -108,10 +113,15 @@ public class Main extends ApplicationAdapter {
         String vertexShader = Gdx.files.internal("shaders/vertex.glsl").readString();
         String fragmentShader = Gdx.files.internal("shaders/fragment.glsl").readString();
         shaderProgram = new ShaderProgram(vertexShader,fragmentShader);
+        if (!shaderProgram.isCompiled()) {
+            System.out.print(shaderProgram.getLog());
+        }
         shaderProgram.pedantic = false;
 
-        Scbatch.setShader(shaderProgram);
+        scBatch.setShader(shaderProgram);
         shaderTime = 0;
+
+        random = new Random();
 
         areaStart();
     }
@@ -123,7 +133,7 @@ public class Main extends ApplicationAdapter {
      * @return
      */
     public static int mapWSafe(int x, int y) {
-        if (x < 0 || x > mapX || y < 0 || y > mapY) {
+        if (x < 0 || x >= mapX || y < 0 || y >= mapY) {
             return -1;
         } else {
             return mapW[y][x];
@@ -260,6 +270,10 @@ public class Main extends ApplicationAdapter {
         switch(tile>>2) {
             case 8:
                 nextArea = 1;
+                break;
+            case 12:
+                nextArea = 2;
+                break;
         }
     }
 
@@ -456,9 +470,8 @@ public class Main extends ApplicationAdapter {
     public void beginMap(long seed) {
 
         // generate map
-        random = new Random();
         random.setSeed(seed);
-        ProcGen p = new ProcGen(random);
+        ProcGen p = new ProcGen();
         // copy p.map to mapW
         // need to go backwards...
         mapX = p.roomX*p.blockSize;
@@ -592,20 +605,25 @@ public class Main extends ApplicationAdapter {
 
         shaderTime+=Gdx.graphics.getDeltaTime();
 
-        Scbatch.begin();
+        scBatch.begin();
 
         // pass in the following to the fragment glsl scripts
         float speed = (float) Math.log(chaseCount+1)+1f;
+        if (speed != scPrevSpeed) {
+            scDelta = shaderTime*5.0f*(scPrevSpeed-speed) + scDelta; // adjust position in the cycle to match previous cycle
+            scPrevSpeed = speed;
+        }
+        float cycle = (float) (sin(speed*shaderTime*5.0f+ scDelta)/8.0f+1.0f);
         Vector2 v = new Vector2(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
         v.x = v.x / Gdx.graphics.getWidth();
         v.y = v.y / Gdx.graphics.getHeight();
         shaderProgram.setUniformf("center", v);
         shaderProgram.setUniformf("u_time", shaderTime);
-        shaderProgram.setUniformf("u_speed", speed);
+        shaderProgram.setUniformf("u_cycle", cycle);
         shaderProgram.setUniformf("u_resolution", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        Scbatch.draw(shaderSpace, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        Scbatch.end();
+        scBatch.draw(shaderSpace, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        scBatch.end();
     }
 
 
@@ -633,7 +651,7 @@ public class Main extends ApplicationAdapter {
         winSound.dispose();
         loseSound.dispose();
         music1.dispose();
-        Scbatch.dispose();
+        scBatch.dispose();
         shaderSpace.dispose();
         shaderProgram.dispose();
     }
@@ -781,5 +799,18 @@ public class Main extends ApplicationAdapter {
      */
     public static void removeFurniture(int index) {
         furniture[index] = null;
+    }
+
+    /**
+     * Fisher–Yates shuffle helper function
+     */
+    public static int[] shuffle(int[] array) {
+        for (int i = array.length-1; i > 0; i--) {
+            int index = random.nextInt(i+1);
+            int tmp = array[i];
+            array[i] = array[index];
+            array[index] = tmp;
+        }
+        return array;
     }
 }

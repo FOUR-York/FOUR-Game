@@ -170,6 +170,10 @@ public class Enemy extends LivingThing {
         }
 
         Main.removeEnemy(index);
+        if (chasing)
+        {
+            Main.chaseCount -= 1;
+        }
     }
 
     /**
@@ -189,7 +193,7 @@ public class Enemy extends LivingThing {
             rx += (float) (Math.cos(angle) * 4);
             ry += (float) (Math.sin(angle) * 4);
 
-            if (Main.mapW[(int) ((mapHeight - (ry)) / 32)][(int) rx / 32] > 0) {
+            if (Main.mapWSafe((int) rx / 32, (int) ((mapHeight - (ry)) / 32)) > 0) {
                 return false;
             }
         }
@@ -222,7 +226,7 @@ public class Enemy extends LivingThing {
             float dx = (float) (Math.cos(angle) * speed * delta);
             float dy = (float) (Math.sin(angle) * speed * delta);
 
-            if (Main.mapW[(int) ((mapHeight-y-dy)/32)][(int) (x+dx)/32] <= 0) {
+            if (Main.mapWSafe((int) (x+dx)/32,(int) ((mapHeight-y-dy)/32)) <= 0) {
                 x += dx;
                 y += dy;
             }

@@ -1,7 +1,12 @@
 package io.github.FOUR.game;
 
+import com.badlogic.gdx.utils.Array;
+
 import java.util.Arrays;
 import java.util.Random;
+
+import static io.github.FOUR.game.Main.mapW;
+import static io.github.FOUR.game.Main.random;
 
 //Map key:
 //1 = basic wall
@@ -20,9 +25,7 @@ public class ProcGen {
     public int[] floor;
     public int blockSize = 10;
     public int roomX, roomY;
-    Random random;
-    public ProcGen(Random random) {
-        this.random = random;
+    public ProcGen() {
         // rooms
         roomX = 5;
         roomY = 3;
@@ -43,7 +46,7 @@ public class ProcGen {
             }
         }
         // dig paths
-        RecursiveBacktracker r = new RecursiveBacktracker(roomX, roomY, random);
+        RecursiveBacktracker r = new RecursiveBacktracker(roomX, roomY);
         for (int i = 0; i < roomX; i++) {
             for (int j = 0; j < roomY; j++) {
                 int roomPath = r.grid[r.cellToGrid(i, j)];
@@ -54,7 +57,6 @@ public class ProcGen {
                 // bitmask for dir
                 if ((roomPath & 1) == 1) {
                    // path up
-                    // make path starting halfway through room width 3
                     makeEmptyRect(x+midBlock, y+midBlock, tunnelWidth, blockSize);
                 }
                 if ((roomPath & 2) == 2) {
@@ -72,35 +74,70 @@ public class ProcGen {
             }
         }
         // make spawn
-        int spawnX = r.startX, spawnY = r.startY;
-        boolean found = false;
-        for (int x = 0;  x < blockSize; x++) {
-            for (int y = 0; y < blockSize; y++) {
-               if (map[cellToMap(spawnX*blockSize+x, spawnY*blockSize+y)] == 0) {
-                   map[cellToMap(spawnX * blockSize + x, spawnY * blockSize + y)] = -1;
-                   found = true;
-                   break;
-               }
+        int[] corners = Main.shuffle(new int[]{1,2,3,4});
+        int spawnX, spawnY;
+        switch(corners[0]) {
+            case 2: {
+                spawnX = roomX-1;
+                spawnY = 0;
+                break;
             }
-            if (found) break;
+            case 3: {
+                spawnX = 0;
+                spawnY = roomY-1;
+                break;
+            }
+            case 4: {
+                spawnX = roomX-1;
+                spawnY = roomY-1;
+                break;
+            }
+            case 1:
+            default: {
+                spawnX = 0;
+                spawnY = 0;
+                break;
+            }
+        };
+        {
+            int[][] positions = findXInMapRegion(spawnX * blockSize + 1, spawnY * blockSize + 1, blockSize - 1, blockSize - 1, 0);
+            int[] position = positions[random.nextInt(positions.length)];
+            map[cellToMap(position[0], position[1])] = -1;
         }
 
         // corridors
 
+
         // place win space
-        int endX = r.endX, endY = r.endY;
-        found = false;
-        for (int x = 0;  x < blockSize; x++) {
-            for (int y = 0; y < blockSize; y++) {
-                int index = cellToMap(endX*blockSize+x, endY*blockSize+y);
-                if (map[index] == 0) {
-                    map[index] = -2;
-                    floor[index] = 4;
-                    found = true;
-                    break;
-                }
+        int endX, endY;
+        switch(corners[1]) {
+            case 2: {
+                endX = roomX-1;
+                endY = 0;
+                break;
             }
-            if (found) break;
+            case 3: {
+                endX = 0;
+                endY = roomY-1;
+                break;
+            }
+            case 4: {
+                endX = roomX-1;
+                endY = roomY-1;
+                break;
+            }
+            case 1:
+            default: {
+                endX = 0;
+                endY = 0;
+                break;
+            }
+        };
+        {
+            int[][] positions = findXInMapRegion(endX * blockSize + 1, endY * blockSize + 1, blockSize - 1, blockSize - 1, 0);
+            int[] position = positions[random.nextInt(positions.length)];
+            map[cellToMap(position[0], position[1])] = -2;
+            floor[cellToMap(position[0], position[1])] = 4;
         }
     }
 
@@ -135,6 +172,39 @@ public class ProcGen {
     }
 
     /**
+     * returns the x and y coordinate of tiles matching tileIndex in a region
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param tileIndex
+     * @return
+     */
+    public int[][] findXInMapRegion(int x, int y, int width, int height, int tileIndex) {
+        // count in range
+        int count = 0;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (map[cellToMap(x+i, y+j)] == tileIndex) {
+                    count++;
+                }
+            }
+        }
+        int[][] result = new int[count][2];
+        int counter = 0;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (map[cellToMap(x+i, y+j)] == tileIndex) {
+                    result[counter][0] = x+i;
+                    result[counter][1] = y+j;
+                    counter++;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
     * clears a rectangular space of walls on the map
      @param sX bottom left x coord
      @param sY bottom left y coord
@@ -164,14 +234,10 @@ public class ProcGen {
 class RecursiveBacktracker {
     int[] grid;
     int dimensionsX, dimensionsY;
-    int startX, startY;
-    int endX, endY;
-    Random random;
 
-    public RecursiveBacktracker(int dimensionsX, int dimensionsY, Random random) {
+    public RecursiveBacktracker(int dimensionsX, int dimensionsY) {
         this.dimensionsX = dimensionsX;
         this.dimensionsY = dimensionsY;
-        this.random = random;
         grid = new int[dimensionsX * dimensionsY];
         Arrays.fill(grid, -1);
         branch(random.nextInt(dimensionsX), random.nextInt(dimensionsY));
@@ -184,17 +250,11 @@ class RecursiveBacktracker {
      */
     void branch(int x, int y) {
         grid[cellToGrid(x, y)] = 0;
-        int mask = 0;
 
+        int[] dirs = Main.shuffle(new int[]{1, 2, 4, 8});
         for (int i = 0; i < 4; i++) {
+            int dir = dirs[i];
             int nextX = x, nextY = y;
-            int dir = 1 << random.nextInt(4);
-
-            while ((dir | mask) == mask) {
-                dir <<= 1;
-                if (dir > 8) dir = 1;
-            }
-            mask |= dir;
 
             switch (dir) {
                 case 1: nextY = y + 1; break; // up
@@ -207,12 +267,20 @@ class RecursiveBacktracker {
             if (grid[cellToGrid(nextX, nextY)] != -1) continue;
 
             grid[cellToGrid(x, y)] |= dir;
-
-            endX = nextX;
-            endY = nextY;
+            grid[cellToGrid(nextX, nextY)] |= dirOpposite(dir);
 
             branch(nextX, nextY);
         }
+    }
+
+    int dirOpposite(int dir) {
+        switch (dir) {
+            case 1: return 4;
+            case 2: return 8;
+            case 4: return 1;
+            case 8: return 2;
+        }
+        return 0;
     }
 
     /**
