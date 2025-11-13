@@ -19,6 +19,6 @@ public class Furniture {
     }
 
     public void draw(Batch batch) {
-        batch.draw(texture, x, y, mapS/2, mapS/2, mapS, mapS, 1, 1, 90f*(dir), 0, 0, 32, 32, false, false);
+        batch.draw(texture, x*mapS, y*mapS, mapS/2, mapS/2, mapS, mapS, 1, 1, 90f*(dir), 0, 0, 32, 32, false, false);
     }
 }

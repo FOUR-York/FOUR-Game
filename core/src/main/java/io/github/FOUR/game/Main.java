@@ -63,7 +63,7 @@ public class Main extends ApplicationAdapter {
     public static int furnitureCount = 0;
     public static Texture[] furnitureTextures;
 
-    public static int nextArea = 0;
+    public static int nextArea = 2;
 
     public static int chaseCount = 0;
 
@@ -226,6 +226,12 @@ public class Main extends ApplicationAdapter {
             case 1:
                 beginMap(System.currentTimeMillis());
                 break;
+            case 2:
+                office();
+                break;
+            case 3:
+                outsideRoom();
+                break;
         }
 
         float[] playerSpawn = findPlayerSpawn();
@@ -238,7 +244,7 @@ public class Main extends ApplicationAdapter {
                         spawnEnemy((x*mapS)+((float)mapS/2), (mapY*mapS)-(((y)*mapS)+((float)mapS/2)));
                         break;
                     case -6:
-                        spawnFurniture(5, 0, (x*mapS)+((float)mapS/2), (mapY*mapS)-(((y)*mapS)+((float)mapS/2)));                }
+                        spawnFurniture(5, 0, x, y);                }
             }
         }
 
@@ -289,11 +295,11 @@ public class Main extends ApplicationAdapter {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 2, 1},
             {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1},
             {1, 0, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 2, 2, 1, 1},
-            {1, 0, 2, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1}, 
-            {1, 0, 0, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1}, 
-            {1, 2, 0, 2, 2, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1}, 
-            {1, 0, 0, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1}, 
-            {1, 2, 0, -5, -5, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1}, 
+            {1, 0, 2, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 0, 0, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 2, 0, 2, 2, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 0, 0, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 2, 0, -5, -5, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         };
         mapY = mapW.length;

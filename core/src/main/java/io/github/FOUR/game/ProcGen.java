@@ -107,7 +107,6 @@ public class ProcGen {
 
         // corridors
 
-
         // place win space
         int endX, endY;
         switch(corners[1]) {
@@ -141,6 +140,17 @@ public class ProcGen {
         }
     }
 
+//    public void copyIntoRegion(int x, int y, int[] rWalls, int[] rFloor, int[] rFurniture) {
+//        int[] rWidth;
+//        int[] rHeight;
+//        for (int i = x; i < rWalls; i++) {
+//            for (int j = x; j < blockSize; j++) {
+//                map[cellToMap(i * blockSize + x, j * blockSize + y)] = room[0][x + y * blockSize];
+//                floor[cellToMap(i * blockSize + x, j * blockSize + y)] = room[1][x + y * blockSize];
+//            }
+//        }
+//    }
+
     /**
      *
     * generates a room and floor map in blockSize coordinate space
@@ -154,10 +164,11 @@ public class ProcGen {
         int[] room = new int[blockSize*blockSize];
         int[] floor = new int[blockSize*blockSize];
         Arrays.fill(room, 1);
-        Arrays.fill(floor, 1);
+        Arrays.fill(floor, -1);
         for (int i = 1; i < blockSize-1; i++) {
             for (int j = 1; j < blockSize-1; j++) {
                 room[i + j*(blockSize)] = 0;
+                floor[i + j*(blockSize)] = 1;
                 if (random.nextInt(30) == 0 && i > 2 &&  i < blockSize-2 && j > 2 && j < blockSize-2) {
                     room[i+j*(blockSize)] = 1;
                 }
@@ -216,6 +227,7 @@ public class ProcGen {
         for  (int i = sX; i < sX+x; i++) {
             for(int j = sY; j < sY+y; j++) {
                 map[cellToMap(i,j)] = 0;
+                floor[cellToMap(i,j)] = 1;
             }
         }
     }
