@@ -253,10 +253,12 @@ public class Enemy extends LivingThing {
 
                 swingTime += delta;
 
-                if (dist < 48 && !hitSuccess) {
-                    player.damage(attack);
-                    hitSuccess = true;
-                    Main.score -= 10;
+                if (swingTime >= 0.25f) {
+                    if (dist < 48 && !hitSuccess) {
+                        player.damage(attack);
+                        hitSuccess = true;
+                        Main.score -= 10;
+                    }
                 }
 
                 if (swingTime >= 0.5f) {
@@ -276,10 +278,12 @@ public class Enemy extends LivingThing {
 
                 swingTime += delta;
 
-                if (dist < 48 && !hitSuccess) {
-                    player.damage(attack);
-                    hitSuccess = true;
-                    Main.score -= 10;
+                if (swingTime >= 0.25f) {
+                    if (dist < 48 && !hitSuccess) {
+                        player.damage(attack);
+                        hitSuccess = true;
+                        Main.score -= 10;
+                    }
                 }
 
                 if (swingTime >= 0.5f) {
@@ -296,10 +300,12 @@ public class Enemy extends LivingThing {
 
                 swingTime += delta;
 
-                if (dist < 48 && !hitSuccess) {
-                    player.damage(attack);
-                    hitSuccess = true;
-                    Main.score -= 10;
+                if (swingTime >= 0.25f) {
+                    if (dist < 48 && !hitSuccess) {
+                        player.damage(attack);
+                        hitSuccess = true;
+                        Main.score -= 10;
+                    }
                 }
 
                 if (swingTime >= 0.5f) {
@@ -316,10 +322,12 @@ public class Enemy extends LivingThing {
 
                 swingTime += delta;
 
-                if (dist < 48 && !hitSuccess) {
-                    player.damage(attack);
-                    hitSuccess = true;
-                    Main.score -= 10;
+                if (swingTime >= 0.25f) {
+                    if (dist < 48 && !hitSuccess) {
+                        player.damage(attack);
+                        hitSuccess = true;
+                        Main.score -= 10;
+                    }
                 }
 
                 if (swingTime >= 0.5f) {
