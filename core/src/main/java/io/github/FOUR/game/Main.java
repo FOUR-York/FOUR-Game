@@ -2,6 +2,7 @@ package io.github.FOUR.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
@@ -25,7 +26,7 @@ public class Main extends ApplicationAdapter {
 
     public static int time = 300, score = 0;
 
-    private static boolean loading = false, ended = false, won = false, lost = false;
+    private static boolean loading = false, ended = false, won = false, lost = false, paused = false;
 
     private static OrthographicCamera camera;
     private static FitViewport viewport;
@@ -509,9 +510,22 @@ public class Main extends ApplicationAdapter {
     public void render() {
         if (!ended) {
             if (!loading) {
-                input();
-                logic();
+                if (!paused) {
+                    input();
+                    logic();
+                }
                 draw();
+
+                if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+                    paused = !paused;
+                }
+
+                if (paused) {
+                    UIbatch.begin();
+                    CharSequence pausedStr = "Paused";
+                    font.draw(UIbatch, pausedStr, WORLD_WIDTH/2, WORLD_HEIGHT/2);
+                    UIbatch.end();
+                }
             }
             else
             {
