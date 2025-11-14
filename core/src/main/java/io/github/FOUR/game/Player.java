@@ -26,6 +26,8 @@ public class Player extends LivingThing {
     private Animation<TextureRegion> walkUp, walkSide, walkDown;
     private TextureRegion[] walkUpFrames, walkSideFrames, walkDownFrames, fallFrames;
 
+    public int keyCount = 0;
+
     /**
      * the constructor for the player class
      *
@@ -65,6 +67,8 @@ public class Player extends LivingThing {
                 // collision with walls
                 if (Main.mapWSafe((int) x/32,(int) ((mapHeight-(y+16))/32)) <= 0) {y += speed * delta;}
 
+                if (Main.mapWSafe((int) x/32,(int) ((mapHeight-(y+16))/32)) == 3 && Main.player.keyCount > 0) {Main.mapW[(int) ((mapHeight-(y+16))/32)][(int) x/32] = 0; Main.player.keyCount--;}
+
                 //animation
                 TextureRegion frame = walkUp.getKeyFrame(stateTime, true);
                 sprite.setRegion(frame);
@@ -81,6 +85,8 @@ public class Player extends LivingThing {
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
                 if (Main.mapWSafe((int) x/32,(int) ((mapHeight-(y-16))/32)) <= 0) {y -= speed * delta;}
 
+                if (Main.mapWSafe((int) x/32,(int) ((mapHeight-(y-16))/32)) == 3 && Main.player.keyCount > 0) {Main.mapW[(int) ((mapHeight-(y-16))/32)][(int) x/32] = 0; Main.player.keyCount--;}
+
                 TextureRegion frame = walkDown.getKeyFrame(stateTime, true);
                 sprite.setRegion(frame);
                 sprite.flip(false, false);
@@ -93,6 +99,8 @@ public class Player extends LivingThing {
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 if (Main.mapWSafe((int) (x+16)/32,(int) ((mapHeight-y)/32)) <= 0) {x += speed * delta;}
 
+                if (Main.mapWSafe((int) (x+16)/32,(int) ((mapHeight-(y))/32)) == 3 && Main.player.keyCount > 0) {Main.mapW[(int) ((mapHeight-(y))/32)][(int) (x+16)/32] = 0; Main.player.keyCount--;}
+
                 TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
                 sprite.setRegion(frame);
                 sprite.flip(false, false);
@@ -104,6 +112,8 @@ public class Player extends LivingThing {
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 if (Main.mapWSafe((int) (x-16)/32,(int) ((mapHeight-y)/32)) <= 0) {x -= speed * delta;}
+
+                if (Main.mapWSafe((int) (x-16)/32,(int) ((mapHeight-(y))/32)) == 3 && Main.player.keyCount > 0) {Main.mapW[(int) ((mapHeight-(y))/32)][(int) (x-16)/32] = 0; Main.player.keyCount--;}
 
                 TextureRegion frame = walkSide.getKeyFrame(stateTime, true);
                 sprite.setRegion(frame);

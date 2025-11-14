@@ -244,7 +244,12 @@ public class Main extends ApplicationAdapter {
                         spawnEnemy((x*mapS)+((float)mapS/2), (mapY*mapS)-(((y)*mapS)+((float)mapS/2)));
                         break;
                     case -6:
-                        spawnFurniture(5, 0, x, y);                }
+                        spawnFurniture(5, 0, x, y);
+                        break;
+                    case -7:
+                        spawnItem((x*mapS)+((float)mapS/2), (mapY*mapS)-(((y)*mapS)+((float)mapS/2)), 3);
+                        break;
+                }
             }
         }
 

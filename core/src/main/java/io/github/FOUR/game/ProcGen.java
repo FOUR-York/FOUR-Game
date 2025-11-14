@@ -9,6 +9,8 @@ import static io.github.FOUR.game.Main.mapW;
 import static io.github.FOUR.game.Main.random;
 
 //Map key:
+//3 = key door
+//2 = invisible collision tile
 //1 = basic wall
 //0 = empty
 //-1 = player spawn
@@ -17,6 +19,7 @@ import static io.github.FOUR.game.Main.random;
 // -4 = enemy tile
 // -5 = room change tile
 // -6 = long boi tile
+//-7 = key spawn
 
 //>0 = solid
 //<=0 = no collision

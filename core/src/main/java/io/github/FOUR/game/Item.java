@@ -1,6 +1,7 @@
 package io.github.FOUR.game;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 /**
  * the Item class handles picking up items, drawing them, and performing code based on its type.
@@ -10,6 +11,7 @@ public class Item extends Entity{
     key:
     1 = healing pickup
     2 = torch
+    3 = key
      */
     public int type, index;
 
@@ -26,6 +28,18 @@ public class Item extends Entity{
         super(x, y, texture);
         this.type = type;
         this.index = index;
+
+        switch (type) {
+            case 1:
+                sprite.setRegion(new TextureRegion(texture, 0, 0, 32, 32));
+                break;
+            case 2:
+                sprite.setRegion(new TextureRegion(texture, 32, 0, 32, 32));
+                break;
+            case 3:
+                sprite.setRegion(new TextureRegion(texture, 64, 0, 32, 32));
+                break;
+        }
     }
 
     /**
@@ -39,6 +53,11 @@ public class Item extends Entity{
                 case 1:
                     Main.score += 10;
                     healPlayer(25);
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    Main.player.keyCount++;
                     break;
             }
             kill();
