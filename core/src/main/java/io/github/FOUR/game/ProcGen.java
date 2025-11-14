@@ -39,13 +39,8 @@ public class ProcGen {
         // copy rooms into map
         for (int i = 0; i < roomX; i++) {
             for (int j = 0; j < roomY; j++) {
-                int[][] room = genRoom();
-                for (int x = 0; x < blockSize; x++) {
-                    for (int y = 0; y < blockSize; y++) {
-                        map[cellToMap(i * blockSize + x, j * blockSize + y)] = room[0][x + y * blockSize];
-                        floor[cellToMap(i * blockSize + x, j * blockSize + y)] = room[1][x + y * blockSize];
-                    }
-                }
+                GenRoom room = new GenRoom(blockSize);
+                copyIntoRegion(i*blockSize, j*blockSize, blockSize, blockSize, room.room, room.floor);
             }
         }
         // dig paths
@@ -141,49 +136,23 @@ public class ProcGen {
             map[cellToMap(position[0], position[1])] = -2;
             floor[cellToMap(position[0], position[1])] = 4;
         }
+        // generate keys
+        int[][] positions = findXInMapRegion(0, 0, roomX*blockSize, roomY*blockSize, 0);
+        for (int i = 0; i < 10; i++) {
+            int[] position = positions[random.nextInt(positions.length)];
+            map[cellToMap(position[0], position[1])] = -7;
+        }
     }
 
-//    public void copyIntoRegion(int x, int y, int[] rWalls, int[] rFloor, int[] rFurniture) {
-//        int[] rWidth;
-//        int[] rHeight;
-//        for (int i = x; i < rWalls; i++) {
-//            for (int j = x; j < blockSize; j++) {
-//                map[cellToMap(i * blockSize + x, j * blockSize + y)] = room[0][x + y * blockSize];
-//                floor[cellToMap(i * blockSize + x, j * blockSize + y)] = room[1][x + y * blockSize];
-//            }
-//        }
-//    }
-
-    /**
-     *
-    * generates a room and floor map in blockSize coordinate space
-    * to be copied into the main map
-     * long boi has a low chance of appearing
-     @return
-     */
-    public int[][] genRoom() {
-        // declare map
-        // generate
-        int[] room = new int[blockSize*blockSize];
-        int[] floor = new int[blockSize*blockSize];
-        Arrays.fill(room, 1);
-        Arrays.fill(floor, -1);
-        for (int i = 1; i < blockSize-1; i++) {
-            for (int j = 1; j < blockSize-1; j++) {
-                room[i + j*(blockSize)] = 0;
-                floor[i + j*(blockSize)] = 1;
-                if (random.nextInt(30) == 0 && i > 2 &&  i < blockSize-2 && j > 2 && j < blockSize-2) {
-                    room[i+j*(blockSize)] = 1;
-                }
-                else if (random.nextInt(100) == 0) {
-                    room[i+j*(blockSize)] = -4;
-                } else if (random.nextInt(1000) == 0) {
-                    room[i+j*(blockSize)] = -6;
-                }
+    public void copyIntoRegion(int x, int y, int width, int height, int[] rWalls, int[] rFloor) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                map[cellToMap(i + x, j + y)] = rWalls[i + j * width];
+                floor[cellToMap(i + x, j + y)] = rFloor[i + j * width];
             }
         }
-        return new int[][]{room, floor};
     }
+
 
     /**
      * returns the x and y coordinate of tiles matching tileIndex in a region
@@ -306,6 +275,39 @@ class RecursiveBacktracker {
      */
     int cellToGrid(int x, int y) {
         return x + y * dimensionsX;
+    }
+}
+
+class GenRoom {
+    public int[] room;
+    public int[] floor;
+    public int[][] furniture;
+    /**
+     *
+     * generates a room and floor map in blockSize coordinate space
+     * to be copied into the main map
+     * long boi has a low chance of appearing
+     @return
+     */
+    public GenRoom(int blockSize) {
+        room = new int[blockSize*blockSize];
+        floor = new int[blockSize*blockSize];
+        Arrays.fill(room, 1);
+        Arrays.fill(floor, -1);
+        for (int i = 1; i < blockSize-1; i++) {
+            for (int j = 1; j < blockSize-1; j++) {
+                room[i + j*(blockSize)] = 0;
+                floor[i + j*(blockSize)] = 1;
+                if (random.nextInt(30) == 0 && i > 2 &&  i < blockSize-2 && j > 2 && j < blockSize-2) {
+                    room[i+j*(blockSize)] = 1;
+                }
+                else if (random.nextInt(100) == 0) {
+                    room[i+j*(blockSize)] = -4;
+                } else if (random.nextInt(8000) == 0) {
+                    room[i+j*(blockSize)] = -6;
+                }
+            }
+        }
     }
 }
 

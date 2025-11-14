@@ -64,7 +64,7 @@ public class Main extends ApplicationAdapter {
     public static int furnitureCount = 0;
     public static Texture[] furnitureTextures;
 
-    public static int nextArea = 2;
+    public static int nextArea = 0;
 
     public static int chaseCount = 0;
 
@@ -209,6 +209,8 @@ public class Main extends ApplicationAdapter {
             "minicornerN",
             "minicornerS",
             "treebushes",
+            "minicornerN_1",
+            "minicornerS_1",
         };
         floorTextures = new Texture[textureNames.length];
         for (int i = 0; i < textureNames.length; i++) {
@@ -279,13 +281,15 @@ public class Main extends ApplicationAdapter {
         endArea();
         loading = true;
 
-        switch(tile>>2) {
-            case 8:
-                nextArea = 1;
-                break;
-            case 12:
+        switch(tile) {
+            case -5:
                 nextArea = 2;
                 break;
+            case -8:
+                nextArea = 3;
+                break;
+            case -9:
+                nextArea = 1;
         }
     }
 
@@ -305,7 +309,7 @@ public class Main extends ApplicationAdapter {
             {1, 0, 0, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             {1, 2, 0, 2, 2, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             {1, 0, 0, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 2, 0, -5, -5, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 2, 0, -8, -8, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         };
         mapY = mapW.length;
@@ -419,7 +423,7 @@ public class Main extends ApplicationAdapter {
             {1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 1},
             {1, 2, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 1},
             {1, 0, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 1},
-            {1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -5, 1},
+            {1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -9, 1},
             {1, 0, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 1},
             {1, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 1},
             {1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 0, 1},
@@ -436,12 +440,12 @@ public class Main extends ApplicationAdapter {
             {-1, 104, 104, 104, 104, 104, 84, 84, 84, 84, 84, 84, 84, 79, 92, 92, 92, 92, 92, 92, -1},
             {-1, 88, 88, 104, 104, 104, 51, 51, 51, 51, 51, 51, 51, 40, 36, 36, 56, 36, 92, 97, -1},
             {-1, 88, 88, 88, 104, 104, 51, 84, 88, 84, 84, 88, 88, 79, 92, 56, 36, 36, 92, 77, -1},
-            {-1, 104, 88, 84, 51, 51, 51, 84, 81, 77, 77, 77, 77, 72, 92, 92, 92, 92, 92, 77, -1},
-            {-1, 88, 88, 84, 51, 84, 84, 84, 79, 92, 92, 92, 92, 92, 92, 75, 76, 76, 76, 83, -1},
+            {-1, 104, 88, 84, 51, 51, 51, 84, 81, 78, 78, 78, 78, 28*4, 92, 92, 92, 92, 92, 77, -1},
+            {-1, 88, 88, 84, 51, 84, 84, 84, 79, 92, 92, 92, 92, 92, 92, 27*4, 76, 76, 76, 83, -1},
             {-1, 104, 84, 84, 51, 88, 84, 84, 79, 92, 92, 92, 92, 92, 92, 77, 51, 51, 51, 88, -1},
             {-1, 104, 104, 84, 51, 88, 88, 84, 79, 92, 92, 92, 92, 92, 92, 77, 84, 84, 51, 84, -1},
-            {-1, 88, 84, 84, 51, 88, 88, 81, 72, 92, 92, 92, 92, 92, 92, 77, 88, 104, 51, 84, -1},
-            {-1, 104, 84, 84, 51, 88, 104, 79, 92, 92, 92, 92, 92, 92, 75, 83, 88, 104, 51, 104, -1},
+            {-1, 88, 84, 84, 51, 88, 88, 81, 28*4, 92, 92, 92, 92, 92, 92, 77, 88, 104, 51, 84, -1},
+            {-1, 104, 84, 84, 51, 88, 104, 79, 92, 92, 92, 92, 92, 92, 27*4, 83, 88, 104, 51, 104, -1},
             {-1, 84, 84, 84, 51, 104, 54, 79, 92, 92, 92, 92, 92, 92, 77, 84, 104, 84, 51, 84, -1},
             {-1, 60, 51, 51, 51, 51, 51, 40, 36, 36, 36, 36, 36, 36, 52, 51, 51, 51, 51, 62, -1},
             {-1, 84, 88, 88, 88, 104, 84, 79, 92, 92, 92, 92, 92, 92, 77, 84, 104, 84, 51, 84, -1},
@@ -526,6 +530,7 @@ public class Main extends ApplicationAdapter {
                     font.draw(UIbatch, pausedStr, WORLD_WIDTH/2, WORLD_HEIGHT/2);
                     UIbatch.end();
                 }
+
             }
             else
             {
@@ -618,8 +623,10 @@ public class Main extends ApplicationAdapter {
         player.drawUI(UIdrawer, UIbatch, hpTexture);
         CharSequence timeStr = "Time: " + time;
         CharSequence scoreStr = "Score: " + score;
+        CharSequence keyStr = "Keys: " + player.keyCount;
         font.draw(UIbatch, timeStr, 10, WORLD_HEIGHT - 10);
         font.draw(UIbatch, scoreStr, 10, WORLD_HEIGHT - 30);
+        font.draw(UIbatch, keyStr, 10, WORLD_HEIGHT - 50);
         UIbatch.end();
     }
 

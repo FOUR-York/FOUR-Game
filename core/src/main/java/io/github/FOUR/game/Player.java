@@ -284,16 +284,21 @@ public class Player extends LivingThing {
         collisionTime += delta;
 
         switch (Main.mapW[(int) ((mapHeight - (y)) / 32)][(int) x / 32]) {
-            case -2:
-                Main.win();
+            case -2: {
+                if (Main.player.keyCount >= 5) {
+                    Main.win();
+                }
                 break;
+            }
             case -3:
                 if (collisionTime >= 1f) {
                     damage(5);
                 }
                 break;
             case -5:
-                Main.changeZoneFromTile(Main.mapF[(int) ((mapHeight - (y)) / 32)][(int) x / 32]);
+            case -8:
+            case -9:
+                Main.changeZoneFromTile(Main.mapW[(int) ((mapHeight - (y)) / 32)][(int) x / 32]);
                 break;
         }
 
