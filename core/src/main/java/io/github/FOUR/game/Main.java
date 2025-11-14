@@ -715,6 +715,10 @@ public class Main extends ApplicationAdapter {
                         shapeDrawer.setColor(0f,0f,0f,1f);
                         shapeDrawer.filledRectangle(xo,yo,mapS,mapS);
                         break;
+                    case 3:
+                        shapeDrawer.setColor(1f,1f,0f,1f);
+                        shapeDrawer.filledRectangle(xo,yo,mapS,mapS);
+                        break;
                 }
             }
         }
