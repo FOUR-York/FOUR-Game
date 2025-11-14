@@ -27,8 +27,6 @@ public class Enemy extends LivingThing {
     private Animation<TextureRegion> walkUp, walkSide, walkDown;
     private TextureRegion[] walkUpFrames, walkSideFrames, walkDownFrames;
 
-    //private Sound hitSound;
-
     /**
      * the constructor for the enemy class
      *
@@ -165,7 +163,7 @@ public class Enemy extends LivingThing {
         Main.score += 100;
 
         float rng = (float) Math.random() * 100;
-        if (rng <= 20) {
+        if (rng <= 25) {
             Main.spawnItem(x, y, 1);
         }
 
