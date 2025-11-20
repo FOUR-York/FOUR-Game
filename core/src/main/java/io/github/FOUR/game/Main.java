@@ -652,7 +652,7 @@ public class Main extends ApplicationAdapter {
         shaderProgram.setUniformf("center", v);
         shaderProgram.setUniformf("u_time", shaderTime);
         shaderProgram.setUniformf("u_cycle", cycle);
-        shaderProgram.setUniformf("u_resolution", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shaderProgram.setUniformf("u_resolution", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
 
         scBatch.draw(shaderSpace, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         scBatch.end();
